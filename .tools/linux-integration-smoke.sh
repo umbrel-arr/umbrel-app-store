@@ -85,6 +85,26 @@ HTTPServer(("0.0.0.0",8080),Handler).serve_forever()' >/dev/null
 cd "$ROOT"
 . umbrel-arr-privado-vpn/exports.sh
 
+compose_up() {
+  local server_alias="$1"
+  local app_data="$2"
+  shift 2
+
+  local attempt
+  for attempt in $(seq 1 5); do
+    if env \
+      INTEGRATION_SERVER_ALIAS="$server_alias" \
+      APP_DATA_DIR="$app_data" \
+      UMBREL_ROOT="${BASE}/umbrel" \
+        "$@" up -d --quiet-pull; then
+      return 0
+    fi
+    printf 'Compose startup failed; retrying in %s seconds (attempt %s/5).\n' "$((attempt * 5))" "$attempt" >&2
+    sleep "$((attempt * 5))"
+  done
+  return 1
+}
+
 start_app() {
   local slug="$1"
   local app_data="${BASE}/apps/${slug}"
@@ -103,10 +123,7 @@ start_app() {
     compose+=(-f "$PARSER_OVERRIDE")
   fi
 
-  INTEGRATION_SERVER_ALIAS="umbrel-arr-${slug}_server_1" \
-  APP_DATA_DIR="$app_data" \
-  UMBREL_ROOT="${BASE}/umbrel" \
-    "${compose[@]}" up -d --quiet-pull
+  compose_up "umbrel-arr-${slug}_server_1" "$app_data" "${compose[@]}"
 }
 
 for slug in \
@@ -117,13 +134,11 @@ done
 
 readonly SETUP_DATA="${BASE}/apps/setup"
 mkdir -p "$SETUP_DATA"
-INTEGRATION_SERVER_ALIAS=umbrel-arr-setup_server_1 \
-APP_DATA_DIR="$SETUP_DATA" \
-UMBREL_ROOT="${BASE}/umbrel" \
+compose_up umbrel-arr-setup_server_1 "$SETUP_DATA" \
   docker compose \
   -p "${PROJECT_PREFIX}-setup" \
   -f umbrel-arr-setup/docker-compose.yml \
-  -f "$OVERRIDE" up -d --quiet-pull
+  -f "$OVERRIDE"
 
 setup_exec() {
   APP_DATA_DIR="$SETUP_DATA" \
