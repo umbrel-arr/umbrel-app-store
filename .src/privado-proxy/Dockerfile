@@ -1,5 +1,9 @@
 FROM debian:bookworm-slim@sha256:60eac759739651111db372c07be67863818726f754804b8707c90979bda511df
 
+LABEL org.opencontainers.image.source="https://github.com/umbrel-arr/umbrel-app-store" \
+      org.opencontainers.image.title="Umbrel Arr Privado Proxy" \
+      org.opencontainers.image.description="Privado WireGuard and SOCKS5 gateway with an Umbrel setup dashboard"
+
 ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
