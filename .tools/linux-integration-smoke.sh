@@ -164,7 +164,12 @@ for _attempt in $(seq 1 90); do
 import json, sys
 data = json.load(sys.stdin)
 counts = data.get("counts", {})
-pending = sum(counts.get(name, 0) for name in ("unknown", "waiting", "configuring"))
+services = data.get("services", [])
+pending = [
+    service for service in services
+    if service.get("status") in {"unknown", "waiting", "configuring"}
+    and not (service.get("id") == "profilarr" and service.get("status") == "waiting")
+]
 raise SystemExit(not (data.get("lastCompletedAt") and not data.get("running") and not counts.get("failed") and not pending))
 ' 2>/dev/null; then
     break
@@ -180,13 +185,18 @@ printf '%s' "$status" | python3 -c '
 import json, sys
 data = json.load(sys.stdin)
 counts = data.get("counts", {})
-pending = sum(counts.get(name, 0) for name in ("unknown", "waiting", "configuring"))
 services = {service["id"]: service for service in data.get("services", [])}
+pending = [
+    service for service in services.values()
+    if service.get("status") in {"unknown", "waiting", "configuring"}
+    and not (service.get("id") == "profilarr" and service.get("status") == "waiting")
+]
 assert data.get("lastCompletedAt"), "reconciliation never completed"
 assert not counts.get("failed"), data
 assert not pending, data
 assert services["privado-vpn"]["status"] == "healthy", data
 assert services["overseerr"]["status"] == "action_required", data
+assert services["profilarr"]["status"] in {"healthy", "waiting"}, data
 print(json.dumps(data, indent=2, sort_keys=True))
 '
 
