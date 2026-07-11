@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: umbrel-arr-flaresolverr_server_1
+      APP_PORT: 8191
+  server:
+    image: ghcr.io/flaresolverr/flaresolverr:latest@sha256:139dfee1c6f89249c8d665d1333a42e8ec74ec0a86bc6bb1c8461e10d3a66a47
+    restart: on-failure
+    environment:
+      LOG_LEVEL: info
+      PROXY_URL: socks5://umbrel-arr-privado-vpn_server_1:1080

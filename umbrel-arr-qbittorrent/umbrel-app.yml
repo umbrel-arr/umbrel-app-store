@@ -1,0 +1,24 @@
+manifestVersion: 1
+id: umbrel-arr-qbittorrent
+category: Media
+name: qBittorrent
+version: "5.2.4-umbrel.1"
+tagline: Torrent client managed by umbrelarr
+icon: icon.svg
+description: >-
+  Downloads torrents to shared Umbrel storage. umbrelarr applies Privado SOCKS5 routing and creates the HD, 4K, TV, movie, and music categories.
+releaseNotes: >-
+  Initial Umbrel Arr package. Cross-service configuration is owned by
+  umbrelarr and internal credentials are generated at install time.
+developer: qBittorrent
+website: https://www.qbittorrent.org
+dependencies: []
+repo: https://github.com/qbittorrent/qBittorrent
+support: https://github.com/qbittorrent/qBittorrent/issues
+port: 30983
+gallery: []
+path: ""
+deterministicPassword: false
+torOnly: false
+submitter: Umbrel Arr
+submission: ""

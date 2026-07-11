@@ -1,0 +1,50 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: umbrel-arr-lidarr_server_1
+      APP_PORT: 8686
+  server:
+    image: lscr.io/linuxserver/lidarr:latest@sha256:ba7d43fd5d7de790c38c2dc8f2b2b54c1ac00a452784891c37385a43a039907a
+    restart: on-failure
+    entrypoint: [/bin/sh, -c]
+    command:
+      - |
+        set -eu
+        config=/config/config.xml
+        mkdir -p /config
+        [ -f "$$config" ] || printf '<Config>\n</Config>\n' > "$$config"
+
+        set_xml_value() {
+          key=$$1
+          value=$$2
+          temporary=$$(mktemp /config/.umbrel-arr.XXXXXX)
+          XML_KEY="$$key" XML_VALUE="$$value" awk '
+            BEGIN { key=ENVIRON["XML_KEY"]; value=ENVIRON["XML_VALUE"]; open="<" key ">"; close="</" key ">"; written=0 }
+            index($$0, open) && index($$0, close) { print "  " open value close; written=1; next }
+            index($$0, "</Config>") && !written { print "  " open value close; written=1 }
+            { print }
+          ' "$$config" > "$$temporary"
+          cat "$$temporary" > "$$config"
+          rm -f "$$temporary"
+        }
+
+        set_xml_value AuthenticationMethod External
+        set_xml_value AuthenticationRequired DisabledForLocalAddresses
+        set_xml_value ApiKey "$$SERVICE_API_KEY"
+        if [ -n "$$ROOT_FOLDER" ]; then
+          mkdir -p "$$ROOT_FOLDER"
+          chown "$$PUID:$$PGID" "$$ROOT_FOLDER"
+        fi
+        exec /init
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ:-Etc/UTC}
+      SERVICE_API_KEY: ${UMBREL_ARR_LIDARR_API_KEY:-}
+      ROOT_FOLDER: "/media/music"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - ${UMBREL_ROOT}/data/storage/downloads:/downloads
+      - ${UMBREL_ROOT}/data/storage/network:/media

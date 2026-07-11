@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: umbrel-arr-overseerr_server_1
+      APP_PORT: 5055
+  server:
+    image: sctx/overseerr:latest@sha256:6197516c9d7b58ccf113455e32aafb94df5d91995fe50e8c2cae6ba6c7c7b7de
+    restart: on-failure
+    environment:
+      TZ: ${TZ:-Etc/UTC}
+      PORT: "5055"
+      CONFIG_DIRECTORY: /app/config
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/app/config

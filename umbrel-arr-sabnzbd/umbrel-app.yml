@@ -1,0 +1,24 @@
+manifestVersion: 1
+id: umbrel-arr-sabnzbd
+category: Media
+name: SABnzbd
+version: "5.0.4-umbrel.1"
+tagline: Usenet client managed by umbrelarr
+icon: icon.svg
+description: >-
+  Downloads from your Usenet providers to shared Umbrel storage. umbrelarr applies VPN routing, paths, and media categories; you only add provider credentials.
+releaseNotes: >-
+  Initial Umbrel Arr package. Cross-service configuration is owned by
+  umbrelarr and internal credentials are generated at install time.
+developer: SABnzbd
+website: https://sabnzbd.org
+dependencies: []
+repo: https://github.com/sabnzbd/sabnzbd
+support: https://github.com/sabnzbd/sabnzbd/issues
+port: 30984
+gallery: []
+path: ""
+deterministicPassword: false
+torOnly: false
+submitter: Umbrel Arr
+submission: ""

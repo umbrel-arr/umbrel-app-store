@@ -1,0 +1,24 @@
+manifestVersion: 1
+id: umbrel-arr-sonarr-4k
+category: Media
+name: Sonarr 4K
+version: "4.0.17.2952-umbrel.1"
+tagline: Dedicated 4K TV series manager
+icon: icon.svg
+description: >-
+  Keeps a separate 2160p series library under network storage with its own category, root, quality profiles, and request-server registration.
+releaseNotes: >-
+  Initial Umbrel Arr package. Cross-service configuration is owned by
+  umbrelarr and internal credentials are generated at install time.
+developer: Sonarr
+website: https://sonarr.tv
+dependencies: []
+repo: https://github.com/Sonarr/Sonarr
+support: https://github.com/Sonarr/Sonarr/issues
+port: 30986
+gallery: []
+path: ""
+deterministicPassword: false
+torOnly: false
+submitter: Umbrel Arr
+submission: ""

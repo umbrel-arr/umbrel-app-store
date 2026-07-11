@@ -1,0 +1,24 @@
+manifestVersion: 1
+id: umbrel-arr-bazarr
+category: Media
+name: Bazarr
+version: "1.6.0-umbrel.1"
+tagline: Subtitle manager for HD Sonarr and Radarr
+icon: icon.svg
+description: >-
+  Manages subtitles beside the HD series and movie libraries. umbrelarr connects Sonarr and Radarr and routes provider traffic through Privado.
+releaseNotes: >-
+  Initial Umbrel Arr package. Cross-service configuration is owned by
+  umbrelarr and internal credentials are generated at install time.
+developer: Bazarr
+website: https://www.bazarr.media
+dependencies: []
+repo: https://github.com/morpheus65535/bazarr
+support: https://github.com/morpheus65535/bazarr/issues
+port: 30989
+gallery: []
+path: ""
+deterministicPassword: false
+torOnly: false
+submitter: Umbrel Arr
+submission: ""

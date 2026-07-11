@@ -1,0 +1,24 @@
+manifestVersion: 1
+id: umbrel-arr-radarr-4k
+category: Media
+name: Radarr 4K
+version: "6.1.1.10360-umbrel.1"
+tagline: Dedicated 4K movie manager
+icon: icon.svg
+description: >-
+  Keeps a separate 2160p movie library under network storage with its own category, root, quality profiles, and request-server registration.
+releaseNotes: >-
+  Initial Umbrel Arr package. Cross-service configuration is owned by
+  umbrelarr and internal credentials are generated at install time.
+developer: Radarr
+website: https://radarr.video
+dependencies: []
+repo: https://github.com/Radarr/Radarr
+support: https://github.com/Radarr/Radarr/issues
+port: 30988
+gallery: []
+path: ""
+deterministicPassword: false
+torOnly: false
+submitter: Umbrel Arr
+submission: ""

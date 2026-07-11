@@ -1,0 +1,37 @@
+manifestVersion: 1
+id: umbrel-arr-setup
+category: Media
+name: umbrelarr
+version: "1.0.0"
+tagline: Manage and automatically configure the complete stack
+icon: icon.svg
+description: >-
+  umbrelarr is the management surface for Umbrel Arr. It installs the service dependencies, accepts the one-time Privado login, configures all owned integrations, reports required actions, and repairs managed drift without touching user-owned settings.
+releaseNotes: >-
+  Initial Umbrel Arr package. Cross-service configuration is owned by
+  umbrelarr and internal credentials are generated at install time.
+developer: Umbrel Arr
+website: https://github.com/umbrel-arr/umbrel-app-store
+dependencies:
+  - umbrel-arr-privado-vpn
+  - umbrel-arr-flaresolverr
+  - umbrel-arr-prowlarr
+  - umbrel-arr-qbittorrent
+  - umbrel-arr-sabnzbd
+  - umbrel-arr-sonarr
+  - umbrel-arr-sonarr-4k
+  - umbrel-arr-radarr
+  - umbrel-arr-radarr-4k
+  - umbrel-arr-bazarr
+  - umbrel-arr-overseerr
+  - umbrel-arr-profilarr
+  - umbrel-arr-lidarr
+repo: https://github.com/umbrel-arr/umbrel-app-store
+support: https://github.com/umbrel-arr/umbrel-app-store/issues
+port: 30992
+gallery: []
+path: ""
+deterministicPassword: false
+torOnly: false
+submitter: Umbrel Arr
+submission: ""

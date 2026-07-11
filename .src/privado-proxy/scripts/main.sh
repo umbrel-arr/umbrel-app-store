@@ -1,0 +1,85 @@
+#!/bin/bash
+
+set -u -o pipefail
+
+source /scripts/vars.sh
+source /scripts/utils.sh
+source /scripts/iptables.sh
+source /scripts/privado.sh
+source /scripts/dante.sh
+
+print_settings
+set_timezone
+
+if [[ "${DASHBOARD_ENABLED,,}" == "true" ]]; then
+  log "INFO: Starting dashboard on port ${DASHBOARD_PORT}"
+  supervisorctl start dashboard || true
+else
+  log "INFO: Dashboard disabled; set DASHBOARD_ENABLED=true to enable it"
+fi
+
+# Set sysctl for WireGuard policy-based routing
+# First check if it's already set correctly
+if current_value=$(sysctl -n net.ipv4.conf.all.src_valid_mark 2>/dev/null); then
+  if [[ "${current_value}" == "1" ]]; then
+    log "INFO: net.ipv4.conf.all.src_valid_mark is already set to 1"
+  else
+    log "INFO: Setting net.ipv4.conf.all.src_valid_mark=1 for WireGuard (current value: ${current_value})"
+    if ! error_msg=$(sysctl -w net.ipv4.conf.all.src_valid_mark=1 2>&1); then
+      log "WARNING: Failed to set src_valid_mark sysctl: ${error_msg}"
+      log "WARNING: This sysctl requires privileged mode or allowedUnsafeSysctls in Kubernetes"
+      log "WARNING: WireGuard policy-based routing may not work correctly"
+      log "WARNING: See README for Kubernetes deployment instructions"
+    else
+      log "INFO: Successfully set net.ipv4.conf.all.src_valid_mark=1"
+    fi
+  fi
+else
+  # sysctl read failed - try to set it anyway
+  log "INFO: Setting net.ipv4.conf.all.src_valid_mark=1 for WireGuard"
+  if ! error_msg=$(sysctl -w net.ipv4.conf.all.src_valid_mark=1 2>&1); then
+    log "WARNING: Failed to set src_valid_mark sysctl: ${error_msg}"
+    log "WARNING: This sysctl requires privileged mode or allowedUnsafeSysctls in Kubernetes"
+    log "WARNING: WireGuard policy-based routing may not work correctly"
+    log "WARNING: See README for Kubernetes deployment instructions"
+  else
+    log "INFO: Successfully set net.ipv4.conf.all.src_valid_mark=1"
+  fi
+fi
+
+# Validate required parameters
+if [[ -z ${PRIVADO_USERNAME} ]] || [[ -z ${PRIVADO_PASSWORD} ]]; then
+  log "ERROR: PRIVADO_USERNAME and PRIVADO_PASSWORD are required"
+  log "ERROR: Set these via environment variables, Docker secrets, or ${CONFIG_FILE}"
+  if [[ "${DASHBOARD_ENABLED,,}" == "true" ]]; then
+    log "INFO: Dashboard remains available for browser setup"
+    while true; do sleep 3600; done
+  fi
+  exit 1
+fi
+
+# Setup Privado VPN via WireGuard
+login_privado
+get_servers
+get_wireguard_config
+setup_wireguard
+connect_privado
+check_connection
+
+# Setup iptables and DNS
+enforce_proxies_iptables
+setup_dns
+
+# Log public IP for verification
+PUBLIC_IP=$(get_public_ip)
+log "INFO: Public IP: ${PUBLIC_IP}"
+
+# Start Dante SOCKS5 proxy
+setup_dante
+start_dante
+
+log "INFO: Privado VPN Proxy is ready"
+log "INFO: SOCKS5 proxy available on port ${SOCK_PORT}"
+if [[ "${DASHBOARD_ENABLED,,}" == "true" ]]; then
+  log "INFO: Dashboard available on port ${DASHBOARD_PORT}"
+fi
