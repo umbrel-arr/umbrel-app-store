@@ -9,10 +9,11 @@ This repository is a generated Umbrel community app store.
   `fix/setup-reconcile`.
 - Never commit credentials, API keys, private hostnames, or machine paths.
 - Pin every container image as `tag@sha256:digest`.
-- Keep service packages minimal. Cross-service behavior belongs in
-  `umbrel-arr-setup`.
-- Edit `.tools/generate-packages.py` or `.src/`; do not hand-edit generated
-  package files.
+- Keep service packages minimal. Cross-service behavior belongs in the
+  separate `umbrel-arr/umbrelarr` repository and published image.
+- Edit `.tools/generate-packages.py`; do not hand-edit generated package files.
+- Keep only Privado image source under `.src/`. Do not duplicate umbrelarr
+  runtime source in this store.
 - Run `.tools/generate-packages.py --check`, `.tools/validate-store.sh`, and the
   setup tests before publishing.
 - Never run Docker-based package tests on macOS. Container integration belongs
@@ -26,5 +27,6 @@ This repository is a generated Umbrel community app store.
 Each non-hidden top-level directory is an Umbrel package. Its directory and
 manifest id must match and start with `umbrel-arr-`.
 
-Custom source lives under `.src/`, shared assets under `.assets/`, and generated
-packages are committed so umbrelOS can consume the repository directly.
+Privado image source lives under `.src/privado-proxy`, shared assets under
+`.assets/`, and generated packages are committed so umbrelOS can consume the
+repository directly.

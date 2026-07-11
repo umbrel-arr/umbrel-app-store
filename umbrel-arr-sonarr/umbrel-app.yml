@@ -6,13 +6,15 @@ version: "4.0.17.2952-umbrel.1"
 tagline: HD TV series manager
 icon: icon.svg
 description: >-
-  Manages the HD series library under network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.
+  Manages the HD series library in Umbrel or linked network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.
 releaseNotes: >-
   Initial Umbrel Arr package. Cross-service configuration is owned by
   umbrelarr and internal credentials are generated at install time.
 developer: Sonarr
 website: https://sonarr.tv
 dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
 repo: https://github.com/Sonarr/Sonarr
 support: https://github.com/Sonarr/Sonarr/issues
 port: 30985

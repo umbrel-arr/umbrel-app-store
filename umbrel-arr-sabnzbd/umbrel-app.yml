@@ -13,6 +13,8 @@ releaseNotes: >-
 developer: SABnzbd
 website: https://sabnzbd.org
 dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
 repo: https://github.com/sabnzbd/sabnzbd
 support: https://github.com/sabnzbd/sabnzbd/issues
 port: 30984

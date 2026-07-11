@@ -13,6 +13,8 @@ releaseNotes: >-
 developer: Sonarr
 website: https://sonarr.tv
 dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
 repo: https://github.com/Sonarr/Sonarr
 support: https://github.com/Sonarr/Sonarr/issues
 port: 30986

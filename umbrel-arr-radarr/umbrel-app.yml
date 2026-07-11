@@ -6,13 +6,15 @@ version: "6.1.1.10360-umbrel.1"
 tagline: HD movie manager
 icon: icon.svg
 description: >-
-  Manages the HD movie library under network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.
+  Manages the HD movie library in Umbrel or linked network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.
 releaseNotes: >-
   Initial Umbrel Arr package. Cross-service configuration is owned by
   umbrelarr and internal credentials are generated at install time.
 developer: Radarr
 website: https://radarr.video
 dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
 repo: https://github.com/Radarr/Radarr
 support: https://github.com/Radarr/Radarr/issues
 port: 30987

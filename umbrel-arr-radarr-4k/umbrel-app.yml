@@ -13,6 +13,8 @@ releaseNotes: >-
 developer: Radarr
 website: https://radarr.video
 dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
 repo: https://github.com/Radarr/Radarr
 support: https://github.com/Radarr/Radarr/issues
 port: 30988

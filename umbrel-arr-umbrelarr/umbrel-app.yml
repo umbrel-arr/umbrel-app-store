@@ -1,5 +1,5 @@
 manifestVersion: 1
-id: umbrel-arr-setup
+id: umbrel-arr-umbrelarr
 category: Media
 name: umbrelarr
 version: "1.0.0"
@@ -11,7 +11,7 @@ releaseNotes: >-
   Initial Umbrel Arr package. Cross-service configuration is owned by
   umbrelarr and internal credentials are generated at install time.
 developer: Umbrel Arr
-website: https://github.com/umbrel-arr/umbrel-app-store
+website: https://github.com/umbrel-arr/umbrelarr
 dependencies:
   - umbrel-arr-privado-vpn
   - umbrel-arr-flaresolverr
@@ -26,8 +26,10 @@ dependencies:
   - umbrel-arr-overseerr
   - umbrel-arr-profilarr
   - umbrel-arr-lidarr
-repo: https://github.com/umbrel-arr/umbrel-app-store
-support: https://github.com/umbrel-arr/umbrel-app-store/issues
+permissions:
+  - STORAGE_DOWNLOADS
+repo: https://github.com/umbrel-arr/umbrelarr
+support: https://github.com/umbrel-arr/umbrelarr/issues
 port: 30992
 gallery: []
 path: ""

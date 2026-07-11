@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import shutil
 import sys
 from pathlib import Path
 from textwrap import dedent, indent
@@ -9,8 +8,6 @@ from textwrap import dedent, indent
 
 ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
-
-PYTHON_IMAGE = "python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0"
 
 APPS = {
     "privado-vpn": {
@@ -98,14 +95,14 @@ APPS = {
         "internal_port": 8989,
         "image": "lscr.io/linuxserver/sonarr:latest@sha256:633e0e66d85ce4e9172608a37d3d24e124b3e485fc0d946f533c3bb5875227e9",
         "tagline": "HD TV series manager",
-        "description": "Manages the HD series library under network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.",
+        "description": "Manages the HD series library in Umbrel or linked network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.",
         "developer": "Sonarr",
         "website": "https://sonarr.tv",
         "repo": "https://github.com/Sonarr/Sonarr",
         "support": "https://github.com/Sonarr/Sonarr/issues",
         "kind": "servarr",
         "api_version": "v3",
-        "root": "/media/series",
+        "root": "/downloads/shows",
     },
     "sonarr-4k": {
         "name": "Sonarr 4K",
@@ -122,7 +119,7 @@ APPS = {
         "support": "https://github.com/Sonarr/Sonarr/issues",
         "kind": "servarr",
         "api_version": "v3",
-        "root": "/media/series-4k",
+        "root": "/downloads/shows-4k",
     },
     "radarr": {
         "name": "Radarr",
@@ -132,14 +129,14 @@ APPS = {
         "internal_port": 7878,
         "image": "lscr.io/linuxserver/radarr:latest@sha256:39da107b5a9371fdaa651bd188049b863716a815385eb3a30d41071b7e1aeb33",
         "tagline": "HD movie manager",
-        "description": "Manages the HD movie library under network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.",
+        "description": "Manages the HD movie library in Umbrel or linked network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.",
         "developer": "Radarr",
         "website": "https://radarr.video",
         "repo": "https://github.com/Radarr/Radarr",
         "support": "https://github.com/Radarr/Radarr/issues",
         "kind": "servarr",
         "api_version": "v3",
-        "root": "/media/movies",
+        "root": "/downloads/movies",
     },
     "radarr-4k": {
         "name": "Radarr 4K",
@@ -156,7 +153,7 @@ APPS = {
         "support": "https://github.com/Radarr/Radarr/issues",
         "kind": "servarr",
         "api_version": "v3",
-        "root": "/media/movies-4k",
+        "root": "/downloads/movies-4k",
     },
     "bazarr": {
         "name": "Bazarr",
@@ -204,19 +201,19 @@ APPS = {
         "support": "https://github.com/Dictionarry-Hub/profilarr/issues",
         "kind": "profilarr",
     },
-    "setup": {
+    "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
         "version": "1.0.0",
         "port": 30992,
         "internal_port": 8080,
-        "image": PYTHON_IMAGE,
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.0.0@sha256:c1f012c615e1b65e6f264c27496134f8a5ca28d764a54d6b0dc12d9776321c68",
         "tagline": "Manage and automatically configure the complete stack",
         "description": "umbrelarr is the management surface for Umbrel Arr. It installs the service dependencies, accepts the one-time Privado login, configures all owned integrations, reports required actions, and repairs managed drift without touching user-owned settings.",
         "developer": "Umbrel Arr",
-        "website": "https://github.com/umbrel-arr/umbrel-app-store",
-        "repo": "https://github.com/umbrel-arr/umbrel-app-store",
-        "support": "https://github.com/umbrel-arr/umbrel-app-store/issues",
+        "website": "https://github.com/umbrel-arr/umbrelarr",
+        "repo": "https://github.com/umbrel-arr/umbrelarr",
+        "support": "https://github.com/umbrel-arr/umbrelarr/issues",
         "kind": "setup",
     },
     "lidarr": {
@@ -227,18 +224,19 @@ APPS = {
         "internal_port": 8686,
         "image": "lscr.io/linuxserver/lidarr:latest@sha256:ba7d43fd5d7de790c38c2dc8f2b2b54c1ac00a452784891c37385a43a039907a",
         "tagline": "Music manager for the Arr stack",
-        "description": "Manages music under network storage. umbrelarr configures the music root, both download clients, and Prowlarr synchronization.",
+        "description": "Manages music in Umbrel or linked network storage. umbrelarr configures the music root, both download clients, and Prowlarr synchronization.",
         "developer": "Lidarr",
         "website": "https://lidarr.audio",
         "repo": "https://github.com/Lidarr/Lidarr",
         "support": "https://github.com/Lidarr/Lidarr/issues",
         "kind": "servarr",
         "api_version": "v1",
-        "root": "/media/music",
+        "root": "/downloads/music",
     },
 }
 
-SERVICE_SLUGS = [slug for slug in APPS if slug != "setup"]
+SERVICE_SLUGS = [slug for slug in APPS if slug != "umbrelarr"]
+STORAGE_SLUGS = {"qbittorrent", "sabnzbd", "sonarr", "sonarr-4k", "radarr", "radarr-4k", "bazarr", "umbrelarr", "lidarr"}
 
 
 def app_id(slug):
@@ -246,7 +244,7 @@ def app_id(slug):
 
 
 def manifest(slug, app):
-    dependencies = SERVICE_SLUGS if slug == "setup" else []
+    dependencies = SERVICE_SLUGS if slug == "umbrelarr" else []
     lines = [
         "manifestVersion: 1",
         f"id: {app_id(slug)}",
@@ -268,6 +266,8 @@ def manifest(slug, app):
         lines.extend(f"  - {app_id(item)}" for item in dependencies)
     else:
         lines.append("dependencies: []")
+    if slug in STORAGE_SLUGS:
+        lines.extend(["permissions:", "  - STORAGE_DOWNLOADS"])
     lines.extend(
         [
             f"repo: {app['repo']}",
@@ -305,10 +305,9 @@ def service_compose(slug, internal_port, block):
 
 def servarr_compose(slug, app):
     key_name = f"UMBREL_ARR_{slug.upper().replace('-', '_')}_API_KEY"
-    root = app.get("root") or ""
     storage = ""
-    if root:
-        storage = "\n            - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n            - ${UMBREL_ROOT}/data/storage/network:/media"
+    if app.get("root"):
+        storage = "\n            - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n            - ${UMBREL_ROOT}/data/storage/network:/network"
     return service_compose(slug, app["internal_port"],
         f"""\
         server:
@@ -339,17 +338,12 @@ def servarr_compose(slug, app):
               set_xml_value AuthenticationMethod External
               set_xml_value AuthenticationRequired DisabledForLocalAddresses
               set_xml_value ApiKey "$$SERVICE_API_KEY"
-              if [ -n "$$ROOT_FOLDER" ]; then
-                mkdir -p "$$ROOT_FOLDER"
-                chown "$$PUID:$$PGID" "$$ROOT_FOLDER"
-              fi
               exec /init
           environment:
             PUID: "1000"
             PGID: "1000"
             TZ: ${{TZ:-Etc/UTC}}
             SERVICE_API_KEY: ${{{key_name}:-}}
-            ROOT_FOLDER: "{root}"
           volumes:
             - ${{APP_DATA_DIR}}/data/config:/config{storage}
         """
@@ -482,16 +476,14 @@ def setup_compose(app):
         f"server:\n"
         f"  image: {app['image']}\n"
         "  restart: on-failure\n"
-        "  command: [python3, /app/app.py]\n"
         "  environment:\n"
         + "\n".join(f"    {line.strip()}" for line in env_lines)
         + "\n  volumes:\n"
-        "    - ./app:/app:ro\n"
         "    - ${APP_DATA_DIR}/data:/data\n"
         "    - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n"
-        "    - ${UMBREL_ROOT}/data/storage/network:/media\n"
+        "    - ${UMBREL_ROOT}/data/storage/network:/network\n"
     )
-    return service_compose("setup", 8080, block)
+    return service_compose("umbrelarr", 8080, block)
 
 
 def compose(slug, app):
@@ -538,7 +530,7 @@ def compose(slug, app):
             slug,
             app,
             "    PUID: \"1000\"\n    PGID: \"1000\"\n    TZ: ${TZ:-Etc/UTC}",
-            "    - ${APP_DATA_DIR}/data/config:/config\n    - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n    - ${UMBREL_ROOT}/data/storage/network:/media",
+            "    - ${APP_DATA_DIR}/data/config:/config\n    - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n    - ${UMBREL_ROOT}/data/storage/network:/network",
         )
     if kind == "overseerr":
         return simple_compose(
@@ -643,13 +635,10 @@ def expected_files():
         directory = ROOT / app_id(slug)
         result[directory / "umbrel-app.yml"] = manifest(slug, app)
         result[directory / "docker-compose.yml"] = compose(slug, app)
-        if slug != "setup":
+        if slug != "umbrelarr":
             result[directory / "exports.sh"] = exports(slug, app)
         icon = ROOT / ".assets" / "icons" / f"{slug}.svg"
         result[directory / "icon.svg"] = icon.read_bytes()
-        if slug == "setup":
-            for source in sorted((ROOT / ".src" / "setup").glob("*.py")):
-                result[directory / "app" / source.name] = source.read_bytes()
     return result
 
 

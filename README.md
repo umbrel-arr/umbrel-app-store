@@ -20,7 +20,7 @@ App packages are generated from `.tools/generate-packages.py`:
 ```sh
 .tools/generate-packages.py
 .tools/validate-store.sh
-python3 -m unittest discover -s .src/setup/tests -v
+python3 -m unittest discover -s .tools/tests -v
 ```
 
 Do not edit generated package files directly. Change the catalog or templates,
@@ -34,13 +34,16 @@ Docker anywhere outside that workflow.
 ## Storage
 
 - Downloads: `${UMBREL_ROOT}/data/storage/downloads`, mounted as `/downloads`
-- Media: `${UMBREL_ROOT}/data/storage/network`, mounted as `/media`
+- Linked storage: `${UMBREL_ROOT}/data/storage/network`, mounted as `/network`
 
-The setup app requires writable network storage before it creates media roots.
+umbrelarr defaults to Umbrel's `/downloads/movies`, `/downloads/shows`, and
+`/downloads/music` layout. Its dashboard can switch the managed roots to
+`/network` presets or save explicit paths under either shared mount.
 
 ## Security
 
 Service UIs are protected by Umbrel. Internal API credentials are random,
 persisted in each owning app's data directory, and never committed. Privado
 credentials are forwarded directly to the VPN app and are not stored by the
-setup app.
+management app. The umbrelarr source and image releases live in the separate
+[`umbrel-arr/umbrelarr`](https://github.com/umbrel-arr/umbrelarr) repository.

@@ -33,18 +33,13 @@ services:
         set_xml_value AuthenticationMethod External
         set_xml_value AuthenticationRequired DisabledForLocalAddresses
         set_xml_value ApiKey "$$SERVICE_API_KEY"
-        if [ -n "$$ROOT_FOLDER" ]; then
-          mkdir -p "$$ROOT_FOLDER"
-          chown "$$PUID:$$PGID" "$$ROOT_FOLDER"
-        fi
         exec /init
     environment:
       PUID: "1000"
       PGID: "1000"
       TZ: ${TZ:-Etc/UTC}
       SERVICE_API_KEY: ${UMBREL_ARR_SONARR_4K_API_KEY:-}
-      ROOT_FOLDER: "/media/series-4k"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - ${UMBREL_ROOT}/data/storage/downloads:/downloads
-      - ${UMBREL_ROOT}/data/storage/network:/media
+      - ${UMBREL_ROOT}/data/storage/network:/network

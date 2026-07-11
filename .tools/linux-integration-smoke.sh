@@ -134,10 +134,10 @@ done
 
 readonly SETUP_DATA="${BASE}/apps/setup"
 mkdir -p "$SETUP_DATA"
-compose_up umbrel-arr-setup_server_1 "$SETUP_DATA" \
+compose_up umbrel-arr-umbrelarr_server_1 "$SETUP_DATA" \
   docker compose \
   -p "${PROJECT_PREFIX}-setup" \
-  -f umbrel-arr-setup/docker-compose.yml \
+  -f umbrel-arr-umbrelarr/docker-compose.yml \
   -f "$OVERRIDE"
 
 setup_exec() {
@@ -145,7 +145,7 @@ setup_exec() {
   UMBREL_ROOT="${BASE}/umbrel" \
     docker compose \
     -p "${PROJECT_PREFIX}-setup" \
-    -f umbrel-arr-setup/docker-compose.yml \
+    -f umbrel-arr-umbrelarr/docker-compose.yml \
     -f "$OVERRIDE" exec -T server "$@"
 }
 

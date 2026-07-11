@@ -27,7 +27,8 @@ def main(root):
         if not manifest.exists() or not compose.exists():
             fail(f"{directory.name} is missing umbrel-app.yml or docker-compose.yml")
 
-        metadata = dict(KEY_RE.findall(manifest.read_text()))
+        manifest_text = manifest.read_text()
+        metadata = dict(KEY_RE.findall(manifest_text))
         if metadata.get("id") != directory.name:
             fail(f"{directory.name} manifest id does not match its directory")
         if not directory.name.startswith("umbrel-arr-"):
@@ -48,6 +49,10 @@ def main(root):
             fail(f"{directory.name} is missing app_proxy wiring")
         if re.search(r"^\s+ports:\s*$", compose_text, re.MULTILINE):
             fail(f"{directory.name} must not publish host port bindings")
+        if "/media" in compose_text:
+            fail(f"{directory.name} must use /downloads or /network instead of /media")
+        if "${UMBREL_ROOT}/data/storage" in compose_text and "STORAGE_DOWNLOADS" not in manifest_text:
+            fail(f"{directory.name} must request STORAGE_DOWNLOADS permission")
         images = [line for line in compose_text.splitlines() if line.lstrip().startswith("image:")]
         if not images or len(IMAGE_RE.findall(compose_text)) != len(images):
             fail(f"{directory.name} contains an unpinned image")
@@ -55,6 +60,8 @@ def main(root):
             "umbrel-arr-flaresolverr",
         }:
             fail(f"{directory.name} does not persist data under APP_DATA_DIR")
+        if directory.name == "umbrel-arr-umbrelarr" and (directory / "app").exists():
+            fail("umbrel-arr-umbrelarr must use its published image instead of embedded source")
         count += 1
 
     if count != 14:

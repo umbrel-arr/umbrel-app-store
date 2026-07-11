@@ -3,12 +3,11 @@ version: "3.7"
 services:
   app_proxy:
     environment:
-      APP_HOST: umbrel-arr-setup_server_1
+      APP_HOST: umbrel-arr-umbrelarr_server_1
       APP_PORT: 8080
   server:
-    image: python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0
+    image: ghcr.io/umbrel-arr/umbrelarr:1.0.0@sha256:c1f012c615e1b65e6f264c27496134f8a5ca28d764a54d6b0dc12d9776321c68
     restart: on-failure
-    command: [python3, /app/app.py]
     environment:
       TZ: ${TZ:-Etc/UTC}
       DEVICE_DOMAIN_NAME: ${DEVICE_DOMAIN_NAME:-umbrel.local}
@@ -39,7 +38,6 @@ services:
       UMBREL_ARR_PRIVADO_SOCKS_HOST: ${UMBREL_ARR_PRIVADO_SOCKS_HOST:-umbrel-arr-privado-vpn_server_1}
       UMBREL_ARR_PRIVADO_SOCKS_PORT: ${UMBREL_ARR_PRIVADO_SOCKS_PORT:-1080}
     volumes:
-      - ./app:/app:ro
       - ${APP_DATA_DIR}/data:/data
       - ${UMBREL_ROOT}/data/storage/downloads:/downloads
-      - ${UMBREL_ROOT}/data/storage/network:/media
+      - ${UMBREL_ROOT}/data/storage/network:/network

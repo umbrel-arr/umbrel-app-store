@@ -13,6 +13,8 @@ releaseNotes: >-
 developer: qBittorrent
 website: https://www.qbittorrent.org
 dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
 repo: https://github.com/qbittorrent/qBittorrent
 support: https://github.com/qbittorrent/qBittorrent/issues
 port: 30983

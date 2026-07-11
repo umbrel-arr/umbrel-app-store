@@ -6,13 +6,15 @@ version: "3.1.0.4875-umbrel.1"
 tagline: Music manager for the Arr stack
 icon: icon.svg
 description: >-
-  Manages music under network storage. umbrelarr configures the music root, both download clients, and Prowlarr synchronization.
+  Manages music in Umbrel or linked network storage. umbrelarr configures the music root, both download clients, and Prowlarr synchronization.
 releaseNotes: >-
   Initial Umbrel Arr package. Cross-service configuration is owned by
   umbrelarr and internal credentials are generated at install time.
 developer: Lidarr
 website: https://lidarr.audio
 dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
 repo: https://github.com/Lidarr/Lidarr
 support: https://github.com/Lidarr/Lidarr/issues
 port: 30993

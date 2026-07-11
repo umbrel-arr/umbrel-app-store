@@ -12,12 +12,12 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
       - run: .tools/generate-packages.py --check
       - run: .tools/validate-store.sh
-      - run: python -m unittest discover -s .src/setup/tests -v
-      - run: python -m compileall -q .src/setup
+      - run: python -m unittest discover -s .tools/tests -v
+      - run: python -m compileall -q .tools
       - run: bash -n .tools/linux-integration-smoke.sh
