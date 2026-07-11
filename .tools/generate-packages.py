@@ -19,7 +19,7 @@ APPS = {
         "version": "1.2.2",
         "port": 30980,
         "internal_port": 8080,
-        "image": "ghcr.io/umbrel-arr/privado-proxy:1.2.2@sha256:c3277a5cc782d8537361fe54c9dd6bf3aac295d0b8dd0d423fe67b320e460c76",
+        "image": "ghcr.io/umbrel-arr/privado-proxy:1.2.2@sha256:68dd6eb5d8355105dc913f59d02dd759ec4be4ae75a625032c9fc28264921eb2",
         "tagline": "Private SOCKS5 gateway for the media stack",
         "description": "Provides the WireGuard tunnel and SOCKS5 proxy used by Umbrel Arr. Enter your Privado login once in umbrelarr; a healthy server is selected automatically.",
         "developer": "Umbrel Arr",
