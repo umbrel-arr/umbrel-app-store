@@ -15,6 +15,9 @@ This repository is a generated Umbrel community app store.
   package files.
 - Run `.tools/generate-packages.py --check`, `.tools/validate-store.sh`, and the
   setup tests before publishing.
+- Never run Docker-based package tests on macOS. Container integration belongs
+  on the manually triggered Linux CI workflow, whose harness refuses to run on
+  other hosts.
 - Preserve user-owned service configuration. The reconciler may only update
   resources it owns by stable name or tag.
 

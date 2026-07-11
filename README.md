@@ -26,6 +26,11 @@ python3 -m unittest discover -s .src/setup/tests -v
 Do not edit generated package files directly. Change the catalog or templates,
 regenerate, and commit the source and generated output together.
 
+Container integration runs only on a remote Linux runner through the manually
+triggered `Smoke stack on Linux` GitHub Actions workflow. Do not run the package
+Compose files with Docker on macOS. The Linux-only harness exits before invoking
+Docker anywhere outside that workflow.
+
 ## Storage
 
 - Downloads: `${UMBREL_ROOT}/data/storage/downloads`, mounted as `/downloads`
