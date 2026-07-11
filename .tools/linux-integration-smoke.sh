@@ -20,13 +20,16 @@ readonly PYTHON_IMAGE="python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea
 export RUN_TOKEN STACK_NETWORK
 
 cleanup() {
+  local exit_code="$?"
   local ids
+  set +e
   ids="$(docker ps -aq --filter "label=umbrel-arr-smoke=${RUN_TOKEN}" 2>/dev/null || true)"
   if [ -n "$ids" ]; then
-    docker rm -f $ids >/dev/null 2>&1 || true
+    docker rm -f $ids >/dev/null 2>&1
   fi
-  docker network rm "$STACK_NETWORK" >/dev/null 2>&1 || true
-  rm -rf "$BASE"
+  docker network rm "$STACK_NETWORK" >/dev/null 2>&1
+  sudo rm -rf "$BASE"
+  return "$exit_code"
 }
 trap cleanup EXIT
 
