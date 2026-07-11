@@ -8,7 +8,7 @@ if [ ! -s "$key_file" ]; then
 fi
 export UMBREL_ARR_OVERSEERR_API_KEY="$(cat "$key_file")"
 export UMBREL_ARR_OVERSEERR_URL="http://umbrel-arr-overseerr_server_1:5055"
-settings_file="${EXPORTS_APP_DATA_DIR}/config/settings.json"
+settings_file="${EXPORTS_APP_DATA_DIR}/data/config/settings.json"
 if [ ! -s "$settings_file" ]; then
   mkdir -p "$(dirname "$settings_file")"
   printf '{"main":{"apiKey":"%s"}}\n' "$UMBREL_ARR_OVERSEERR_API_KEY" > "$settings_file"

@@ -606,7 +606,7 @@ def exports(slug, app):
     if slug == "bazarr":
         extra = dedent(
             """\
-            config_file="${EXPORTS_APP_DATA_DIR}/config/config.yaml"
+            config_file="${EXPORTS_APP_DATA_DIR}/data/config/config.yaml"
             if [ ! -s "$config_file" ]; then
               mkdir -p "$(dirname "$config_file")"
               printf 'auth:\\n  apikey: %s\\n' "$UMBREL_ARR_BAZARR_API_KEY" > "$config_file"
@@ -617,7 +617,7 @@ def exports(slug, app):
     if slug == "overseerr":
         extra = dedent(
             """\
-            settings_file="${EXPORTS_APP_DATA_DIR}/config/settings.json"
+            settings_file="${EXPORTS_APP_DATA_DIR}/data/config/settings.json"
             if [ ! -s "$settings_file" ]; then
               mkdir -p "$(dirname "$settings_file")"
               printf '{"main":{"apiKey":"%s"}}\\n' "$UMBREL_ARR_OVERSEERR_API_KEY" > "$settings_file"
