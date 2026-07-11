@@ -17,6 +17,7 @@ readonly BASE="$(mktemp -d)"
 readonly OVERRIDE="${BASE}/compose.override.yml"
 readonly PARSER_OVERRIDE="${BASE}/compose.parser.yml"
 readonly PYTHON_IMAGE="python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0"
+export RUN_TOKEN STACK_NETWORK
 
 cleanup() {
   local ids
@@ -102,8 +103,6 @@ start_app() {
   INTEGRATION_SERVER_ALIAS="umbrel-arr-${slug}_server_1" \
   APP_DATA_DIR="$app_data" \
   UMBREL_ROOT="${BASE}/umbrel" \
-  RUN_TOKEN="$RUN_TOKEN" \
-  STACK_NETWORK="$STACK_NETWORK" \
     "${compose[@]}" up -d --quiet-pull
 }
 
@@ -118,8 +117,6 @@ mkdir -p "$SETUP_DATA"
 INTEGRATION_SERVER_ALIAS=umbrel-arr-setup_server_1 \
 APP_DATA_DIR="$SETUP_DATA" \
 UMBREL_ROOT="${BASE}/umbrel" \
-RUN_TOKEN="$RUN_TOKEN" \
-STACK_NETWORK="$STACK_NETWORK" \
   docker compose \
   -p "${PROJECT_PREFIX}-setup" \
   -f umbrel-arr-setup/docker-compose.yml \
@@ -128,8 +125,6 @@ STACK_NETWORK="$STACK_NETWORK" \
 setup_exec() {
   APP_DATA_DIR="$SETUP_DATA" \
   UMBREL_ROOT="${BASE}/umbrel" \
-  RUN_TOKEN="$RUN_TOKEN" \
-  STACK_NETWORK="$STACK_NETWORK" \
     docker compose \
     -p "${PROJECT_PREFIX}-setup" \
     -f umbrel-arr-setup/docker-compose.yml \
