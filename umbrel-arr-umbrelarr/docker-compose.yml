@@ -38,6 +38,6 @@ services:
       UMBREL_ARR_PRIVADO_SOCKS_HOST: ${UMBREL_ARR_PRIVADO_SOCKS_HOST:-umbrel-arr-privado-vpn_server_1}
       UMBREL_ARR_PRIVADO_SOCKS_PORT: ${UMBREL_ARR_PRIVADO_SOCKS_PORT:-1080}
     volumes:
-      - ${APP_DATA_DIR}/data:/data
+      - ${APP_DATA_DIR}:/data
       - ${UMBREL_ROOT}/data/storage/downloads:/downloads
       - ${UMBREL_ROOT}/data/storage/network:/network:rslave

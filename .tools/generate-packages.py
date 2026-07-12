@@ -204,7 +204,7 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.0.4",
+        "version": "1.0.4-umbrel.1",
         "port": 30992,
         "internal_port": 8080,
         "image": "ghcr.io/umbrel-arr/umbrelarr:1.0.4@sha256:72d17dd17e7824000ca17505dad1bd5908efc4252ebc24aa115a3a6eedda402a",
@@ -395,7 +395,7 @@ def setup_compose(app):
         "  environment:\n"
         + "\n".join(f"    {line.strip()}" for line in env_lines)
         + "\n  volumes:\n"
-        "    - ${APP_DATA_DIR}/data:/data\n"
+        "    - ${APP_DATA_DIR}:/data\n"
         "    - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n"
         "    - ${UMBREL_ROOT}/data/storage/network:/network:rslave\n"
     )
