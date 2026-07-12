@@ -2,14 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-privado-vpn
 category: Networking
 name: Privado VPN
-version: "1.2.2"
+version: "1.2.3"
 tagline: Private SOCKS5 gateway for the media stack
 icon: icon.svg
 description: >-
   Provides the WireGuard tunnel and SOCKS5 proxy used by Umbrel Arr. Enter your Privado login once in umbrelarr; a healthy server is selected automatically.
 releaseNotes: >-
-  Initial Umbrel Arr package. Cross-service configuration is owned by
-  umbrelarr and internal credentials are generated at install time.
+  Starts the VPN tunnel immediately after dashboard login, reports startup failures, and keeps saved-login status accurate across restarts.
 developer: Umbrel Arr
 website: https://github.com/umbrel-arr/umbrel-app-store
 dependencies: []

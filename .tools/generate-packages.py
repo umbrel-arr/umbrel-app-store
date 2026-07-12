@@ -13,12 +13,13 @@ APPS = {
     "privado-vpn": {
         "name": "Privado VPN",
         "category": "Networking",
-        "version": "1.2.2",
+        "version": "1.2.3",
         "port": 30980,
         "internal_port": 8080,
-        "image": "ghcr.io/umbrel-arr/privado-proxy:1.2.2@sha256:68dd6eb5d8355105dc913f59d02dd759ec4be4ae75a625032c9fc28264921eb2",
+        "image": "ghcr.io/umbrel-arr/privado-proxy:1.2.3@sha256:efda1dedb6047a0bcf776b0f84f3a3ab206327e37bab55a30fa781793c488cc3",
         "tagline": "Private SOCKS5 gateway for the media stack",
         "description": "Provides the WireGuard tunnel and SOCKS5 proxy used by Umbrel Arr. Enter your Privado login once in umbrelarr; a healthy server is selected automatically.",
+        "release_notes": "Starts the VPN tunnel immediately after dashboard login, reports startup failures, and keeps saved-login status accurate across restarts.",
         "developer": "Umbrel Arr",
         "website": "https://github.com/umbrel-arr/umbrel-app-store",
         "repo": "https://github.com/umbrel-arr/umbrel-app-store",
@@ -245,6 +246,14 @@ def app_id(slug):
 
 def manifest(slug, app):
     dependencies = SERVICE_SLUGS if slug == "umbrelarr" else []
+    release_lines = (
+        [f"  {app['release_notes']}"]
+        if app.get("release_notes")
+        else [
+            "  Initial Umbrel Arr package. Cross-service configuration is owned by",
+            "  umbrelarr and internal credentials are generated at install time.",
+        ]
+    )
     lines = [
         "manifestVersion: 1",
         f"id: {app_id(slug)}",
@@ -256,8 +265,7 @@ def manifest(slug, app):
         "description: >-",
         f"  {app['description']}",
         "releaseNotes: >-",
-        "  Initial Umbrel Arr package. Cross-service configuration is owned by",
-        "  umbrelarr and internal credentials are generated at install time.",
+        *release_lines,
         f"developer: {app['developer']}",
         f"website: {app['website']}",
     ]
