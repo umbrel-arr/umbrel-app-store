@@ -2,7 +2,7 @@ manifestVersion: 1
 id: umbrel-arr-umbrelarr
 category: Media
 name: umbrelarr
-version: "1.0.4-umbrel.1"
+version: "1.0.5"
 tagline: Manage and automatically configure the complete stack
 icon: icon.svg
 description: >-
