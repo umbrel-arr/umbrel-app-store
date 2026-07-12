@@ -2,14 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-prowlarr
 category: Media
 name: Prowlarr
-version: "2.3.5.5327-umbrel.1"
+version: "2.3.5.5327-umbrel.2"
 tagline: Indexer manager for the complete Arr stack
-icon: icon.svg
+icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-prowlarr/icon.svg
 description: >-
   Manages indexers for Sonarr, Radarr, their 4K instances, and Lidarr. umbrelarr owns service registration, VPN proxy settings, and FlareSolverr integration.
 releaseNotes: >-
-  Initial Umbrel Arr package. Cross-service configuration is owned by
-  umbrelarr and internal credentials are generated at install time.
+  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
 developer: Prowlarr
 website: https://prowlarr.com
 dependencies: []

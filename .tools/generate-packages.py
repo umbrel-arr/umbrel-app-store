@@ -8,18 +8,20 @@ from textwrap import dedent, indent
 
 ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
+ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
+ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
 
 APPS = {
     "privado-vpn": {
         "name": "Privado VPN",
         "category": "Networking",
-        "version": "1.2.3",
+        "version": "1.2.4",
         "port": 30980,
         "internal_port": 8080,
         "image": "ghcr.io/umbrel-arr/privado-proxy:1.2.3@sha256:efda1dedb6047a0bcf776b0f84f3a3ab206327e37bab55a30fa781793c488cc3",
         "tagline": "Private SOCKS5 gateway for the media stack",
         "description": "Provides the WireGuard tunnel and SOCKS5 proxy used by Umbrel Arr. Enter your Privado login once in umbrelarr; a healthy server is selected automatically.",
-        "release_notes": "Starts the VPN tunnel immediately after dashboard login, reports startup failures, and keeps saved-login status accurate across restarts.",
+        "release_notes": ICON_RELEASE_NOTES,
         "developer": "Umbrel Arr",
         "website": "https://github.com/umbrel-arr/umbrel-app-store",
         "repo": "https://github.com/umbrel-arr/umbrel-app-store",
@@ -29,7 +31,7 @@ APPS = {
     "flaresolverr": {
         "name": "FlareSolverr",
         "category": "Networking",
-        "version": "3.5.0-umbrel.1",
+        "version": "3.5.0-umbrel.2",
         "port": 30981,
         "internal_port": 8191,
         "image": "ghcr.io/flaresolverr/flaresolverr:latest@sha256:139dfee1c6f89249c8d665d1333a42e8ec74ec0a86bc6bb1c8461e10d3a66a47",
@@ -44,7 +46,7 @@ APPS = {
     "prowlarr": {
         "name": "Prowlarr",
         "category": "Media",
-        "version": "2.3.5.5327-umbrel.1",
+        "version": "2.3.5.5327-umbrel.2",
         "port": 30982,
         "internal_port": 9696,
         "image": "lscr.io/linuxserver/prowlarr:latest@sha256:3e9bd62ca90c97c5df75b7012e10a29f6926e62807deeddc1dc89e6e2fd141e1",
@@ -61,7 +63,7 @@ APPS = {
     "qbittorrent": {
         "name": "qBittorrent",
         "category": "Media",
-        "version": "5.2.4-umbrel.1",
+        "version": "5.2.4-umbrel.2",
         "port": 30983,
         "internal_port": 8080,
         "image": "lscr.io/linuxserver/qbittorrent:latest@sha256:d8488fb24969bb0954cf64a1ca1cf7a763031641ba4246734964faea6f0b807a",
@@ -76,7 +78,7 @@ APPS = {
     "sabnzbd": {
         "name": "SABnzbd",
         "category": "Media",
-        "version": "5.0.4-umbrel.1",
+        "version": "5.0.4-umbrel.2",
         "port": 30984,
         "internal_port": 8080,
         "image": "lscr.io/linuxserver/sabnzbd:latest@sha256:30cc2eb9e1c8b7c5bb90dbf3c7abb0e66643c21c3710e273a82d2f36239e176d",
@@ -91,7 +93,7 @@ APPS = {
     "sonarr": {
         "name": "Sonarr",
         "category": "Media",
-        "version": "4.0.17.2952-umbrel.1",
+        "version": "4.0.17.2952-umbrel.2",
         "port": 30985,
         "internal_port": 8989,
         "image": "lscr.io/linuxserver/sonarr:latest@sha256:633e0e66d85ce4e9172608a37d3d24e124b3e485fc0d946f533c3bb5875227e9",
@@ -108,7 +110,7 @@ APPS = {
     "sonarr-4k": {
         "name": "Sonarr 4K",
         "category": "Media",
-        "version": "4.0.17.2952-umbrel.1",
+        "version": "4.0.17.2952-umbrel.2",
         "port": 30986,
         "internal_port": 8989,
         "image": "lscr.io/linuxserver/sonarr:latest@sha256:633e0e66d85ce4e9172608a37d3d24e124b3e485fc0d946f533c3bb5875227e9",
@@ -125,7 +127,7 @@ APPS = {
     "radarr": {
         "name": "Radarr",
         "category": "Media",
-        "version": "6.1.1.10360-umbrel.1",
+        "version": "6.1.1.10360-umbrel.2",
         "port": 30987,
         "internal_port": 7878,
         "image": "lscr.io/linuxserver/radarr:latest@sha256:39da107b5a9371fdaa651bd188049b863716a815385eb3a30d41071b7e1aeb33",
@@ -142,7 +144,7 @@ APPS = {
     "radarr-4k": {
         "name": "Radarr 4K",
         "category": "Media",
-        "version": "6.1.1.10360-umbrel.1",
+        "version": "6.1.1.10360-umbrel.2",
         "port": 30988,
         "internal_port": 7878,
         "image": "lscr.io/linuxserver/radarr:latest@sha256:39da107b5a9371fdaa651bd188049b863716a815385eb3a30d41071b7e1aeb33",
@@ -159,7 +161,7 @@ APPS = {
     "bazarr": {
         "name": "Bazarr",
         "category": "Media",
-        "version": "1.6.0-umbrel.1",
+        "version": "1.6.0-umbrel.2",
         "port": 30989,
         "internal_port": 6767,
         "image": "lscr.io/linuxserver/bazarr:latest@sha256:5d916d07404296ec35ee726e13e0e558f05952724cf494a7f009d913fb2b12f3",
@@ -174,7 +176,7 @@ APPS = {
     "overseerr": {
         "name": "Overseerr",
         "category": "Media",
-        "version": "1.35.0-umbrel.1",
+        "version": "1.35.0-umbrel.2",
         "port": 30990,
         "internal_port": 5055,
         "image": "sctx/overseerr:latest@sha256:6197516c9d7b58ccf113455e32aafb94df5d91995fe50e8c2cae6ba6c7c7b7de",
@@ -189,7 +191,7 @@ APPS = {
     "profilarr": {
         "name": "Profilarr",
         "category": "Media",
-        "version": "2.0.9-umbrel.1",
+        "version": "2.0.9-umbrel.2",
         "port": 30991,
         "internal_port": 6868,
         "image": "ghcr.io/dictionarry-hub/profilarr:2.0.9@sha256:7a9b5112ff227320d17c65ab643a5d875713e6235991ef04a8e482ec51427902",
@@ -205,7 +207,7 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "port": 30992,
         "internal_port": 8080,
         "image": "ghcr.io/umbrel-arr/umbrelarr:1.0.5@sha256:f9828259a10abf0eaa965257869b522d3de8586ac8d5fb92227d78d578caf4dc",
@@ -220,7 +222,7 @@ APPS = {
     "lidarr": {
         "name": "Lidarr",
         "category": "Media",
-        "version": "3.1.0.4875-umbrel.1",
+        "version": "3.1.0.4875-umbrel.2",
         "port": 30993,
         "internal_port": 8686,
         "image": "lscr.io/linuxserver/lidarr:latest@sha256:ba7d43fd5d7de790c38c2dc8f2b2b54c1ac00a452784891c37385a43a039907a",
@@ -246,14 +248,7 @@ def app_id(slug):
 
 def manifest(slug, app):
     dependencies = SERVICE_SLUGS if slug == "umbrelarr" else []
-    release_lines = (
-        [f"  {app['release_notes']}"]
-        if app.get("release_notes")
-        else [
-            "  Initial Umbrel Arr package. Cross-service configuration is owned by",
-            "  umbrelarr and internal credentials are generated at install time.",
-        ]
-    )
+    release_lines = [f"  {app.get('release_notes', ICON_RELEASE_NOTES)}"]
     lines = [
         "manifestVersion: 1",
         f"id: {app_id(slug)}",
@@ -261,7 +256,7 @@ def manifest(slug, app):
         f"name: {app['name']}",
         f'version: "{app["version"]}"',
         f"tagline: {app['tagline']}",
-        "icon: icon.svg",
+        f"icon: {ICON_BASE_URL}/{app_id(slug)}/icon.svg",
         "description: >-",
         f"  {app['description']}",
         "releaseNotes: >-",

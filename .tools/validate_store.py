@@ -33,7 +33,11 @@ def main(root):
             fail(f"{directory.name} manifest id does not match its directory")
         if not directory.name.startswith("umbrel-arr-"):
             fail(f"{directory.name} does not start with the store id")
-        if metadata.get("icon") != "icon.svg" or not (directory / "icon.svg").exists():
+        icon = metadata.get("icon", "")
+        expected_icon_suffix = f"/{directory.name}/icon.svg"
+        if not icon.startswith("https://") or not icon.endswith(expected_icon_suffix):
+            fail(f"{directory.name} must use an absolute HTTPS icon URL ending in {expected_icon_suffix}")
+        if not (directory / "icon.svg").exists():
             fail(f"{directory.name} must include icon.svg")
 
         try:

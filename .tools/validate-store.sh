@@ -2,4 +2,5 @@
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+python3 "$root/.tools/generate-icons.py" --check
 python3 "$root/.tools/validate_store.py" "$root"

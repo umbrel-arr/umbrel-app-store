@@ -2,14 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-profilarr
 category: Media
 name: Profilarr
-version: "2.0.9-umbrel.1"
+version: "2.0.9-umbrel.2"
 tagline: Quality profiles and custom formats as code
-icon: icon.svg
+icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-profilarr/icon.svg
 description: >-
   Owns quality profiles and custom formats for the HD and 4K Sonarr and Radarr instances. umbrelarr links the public database and configures daily synchronization.
 releaseNotes: >-
-  Initial Umbrel Arr package. Cross-service configuration is owned by
-  umbrelarr and internal credentials are generated at install time.
+  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
 developer: Profilarr
 website: https://github.com/Dictionarry-Hub/profilarr
 dependencies: []

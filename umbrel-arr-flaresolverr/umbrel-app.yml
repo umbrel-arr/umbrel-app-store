@@ -2,14 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-flaresolverr
 category: Networking
 name: FlareSolverr
-version: "3.5.0-umbrel.1"
+version: "3.5.0-umbrel.2"
 tagline: Browser challenge solver for Prowlarr
-icon: icon.svg
+icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-flaresolverr/icon.svg
 description: >-
   Solves supported browser challenges for tagged Prowlarr indexers. umbrelarr registers the proxy and routes browser traffic through Privado.
 releaseNotes: >-
-  Initial Umbrel Arr package. Cross-service configuration is owned by
-  umbrelarr and internal credentials are generated at install time.
+  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
 developer: FlareSolverr
 website: https://github.com/FlareSolverr/FlareSolverr
 dependencies: []

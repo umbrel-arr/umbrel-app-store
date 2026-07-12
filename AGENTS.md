@@ -30,3 +30,8 @@ manifest id must match and start with `umbrel-arr-`.
 Privado image source lives under `.src/privado-proxy`, shared assets under
 `.assets/`, and generated packages are committed so umbrelOS can consume the
 repository directly.
+
+Community app icons must use an absolute HTTPS URL in `umbrel-app.yml`; Umbrel
+does not resolve relative icon paths for custom stores. Keep the vendored
+256x256 SVG in each package, use a fully opaque edge-to-edge canvas, and update
+icons through `.assets/icon-sources/` plus `.tools/generate-icons.py`.
