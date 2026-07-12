@@ -67,6 +67,7 @@ mkdir -p \
   "${BASE}/umbrel/data/storage/downloads" \
   "${BASE}/umbrel/data/storage/network" \
   "${BASE}/apps"
+sudo chown -R 1000:1000 "${BASE}/umbrel/data/storage"
 docker network create "$STACK_NETWORK" >/dev/null
 
 docker run -d \
@@ -74,13 +75,9 @@ docker run -d \
   --label "umbrel-arr-smoke=${RUN_TOKEN}" \
   --network "$STACK_NETWORK" \
   --network-alias umbrel-arr-privado-vpn_server_1 \
+  --volume "$ROOT/.tools/privado_ci_mock.py:/mock.py:ro" \
   "$PYTHON_IMAGE" \
-  python3 -u -c 'import json; from http.server import BaseHTTPRequestHandler,HTTPServer
-class Handler(BaseHTTPRequestHandler):
- def do_GET(self):
-  body=json.dumps({"state":"healthy","credentialsConfigured":True,"detail":"Connected"}).encode(); self.send_response(200); self.send_header("Content-Type","application/json"); self.send_header("Content-Length",str(len(body))); self.end_headers(); self.wfile.write(body)
- def log_message(self,*_args): pass
-HTTPServer(("0.0.0.0",8080),Handler).serve_forever()' >/dev/null
+  python3 -u /mock.py >/dev/null
 
 cd "$ROOT"
 . umbrel-arr-privado-vpn/exports.sh
@@ -134,6 +131,7 @@ done
 
 readonly SETUP_DATA="${BASE}/apps/setup"
 mkdir -p "$SETUP_DATA"
+sudo chown -R 1000:1000 "$SETUP_DATA"
 compose_up umbrel-arr-umbrelarr_server_1 "$SETUP_DATA" \
   docker compose \
   -p "${PROJECT_PREFIX}-setup" \
