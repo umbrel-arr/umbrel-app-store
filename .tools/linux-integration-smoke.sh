@@ -110,7 +110,7 @@ start_app() {
   local app_data="${BASE}/apps/${slug}"
   mkdir -p "$app_data"
   if [ -f "umbrel-arr-${slug}/exports.sh" ]; then
-    EXPORTS_APP_DATA_DIR="$app_data" . "umbrel-arr-${slug}/exports.sh"
+    EXPORTS_APP_DATA_DIR="${app_data}/data" . "umbrel-arr-${slug}/exports.sh"
   fi
 
   local compose=(

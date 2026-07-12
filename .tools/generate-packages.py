@@ -204,10 +204,10 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "port": 30992,
         "internal_port": 8080,
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.0.0@sha256:c1f012c615e1b65e6f264c27496134f8a5ca28d764a54d6b0dc12d9776321c68",
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.0.1@sha256:9197f19d04440a08c04d976aa0643f0466a498932fc9968360eb8c5237a38823",
         "tagline": "Manage and automatically configure the complete stack",
         "description": "umbrelarr is the management surface for Umbrel Arr. It installs the service dependencies, accepts the one-time Privado login, configures all owned integrations, reports required actions, and repairs managed drift without touching user-owned settings.",
         "developer": "Umbrel Arr",
@@ -304,46 +304,18 @@ def service_compose(slug, internal_port, block):
 
 
 def servarr_compose(slug, app):
-    key_name = f"UMBREL_ARR_{slug.upper().replace('-', '_')}_API_KEY"
     storage = ""
     if app.get("root"):
-        storage = "\n            - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n            - ${UMBREL_ROOT}/data/storage/network:/network"
+        storage = "\n            - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n            - ${UMBREL_ROOT}/data/storage/network:/network:rslave"
     return service_compose(slug, app["internal_port"],
         f"""\
         server:
           image: {app['image']}
           restart: on-failure
-          entrypoint: [/bin/sh, -c]
-          command:
-            - |
-              set -eu
-              config=/config/config.xml
-              mkdir -p /config
-              [ -f "$$config" ] || printf '<Config>\\n</Config>\\n' > "$$config"
-
-              set_xml_value() {{
-                key=$$1
-                value=$$2
-                temporary=$$(mktemp /config/.umbrel-arr.XXXXXX)
-                XML_KEY="$$key" XML_VALUE="$$value" awk '
-                  BEGIN {{ key=ENVIRON["XML_KEY"]; value=ENVIRON["XML_VALUE"]; open="<" key ">"; close="</" key ">"; written=0 }}
-                  index($$0, open) && index($$0, close) {{ print "  " open value close; written=1; next }}
-                  index($$0, "</Config>") && !written {{ print "  " open value close; written=1 }}
-                  {{ print }}
-                ' "$$config" > "$$temporary"
-                cat "$$temporary" > "$$config"
-                rm -f "$$temporary"
-              }}
-
-              set_xml_value AuthenticationMethod External
-              set_xml_value AuthenticationRequired DisabledForLocalAddresses
-              set_xml_value ApiKey "$$SERVICE_API_KEY"
-              exec /init
           environment:
             PUID: "1000"
             PGID: "1000"
             TZ: ${{TZ:-Etc/UTC}}
-            SERVICE_API_KEY: ${{{key_name}:-}}
           volumes:
             - ${{APP_DATA_DIR}}/data/config:/config{storage}
         """
@@ -356,32 +328,6 @@ def qbittorrent_compose(app):
         server:
           image: {app['image']}
           restart: on-failure
-          entrypoint: [/bin/sh, -c]
-          command:
-            - |
-              set -eu
-              config=/config/qBittorrent/qBittorrent.conf
-              mkdir -p "$$(dirname "$$config")"
-              [ -f "$$config" ] || printf '[Preferences]\\n' > "$$config"
-              set_pref() {{
-                key=$$1; value=$$2; tmp=$$(mktemp)
-                QBIT_KEY="$$key" QBIT_VALUE="$$value" awk '
-                  BEGIN {{ key=ENVIRON["QBIT_KEY"]; value=ENVIRON["QBIT_VALUE"]; written=0 }}
-                  $$0 == "[Preferences]" {{ print; print key "=" value; written=1; next }}
-                  index($$0, key "=") == 1 {{ next }}
-                  {{ print }}
-                ' "$$config" > "$$tmp"
-                cat "$$tmp" > "$$config"; rm -f "$$tmp"
-              }}
-              set_pref 'WebUI\\HostHeaderValidation' 'false'
-              set_pref 'WebUI\\ServerDomains' '*'
-              set_pref 'WebUI\\SecureCookie' 'false'
-              set_pref 'WebUI\\AuthSubnetWhitelistEnabled' 'true'
-              set_pref 'WebUI\\AuthSubnetWhitelist' '0.0.0.0/0'
-              set_pref 'Downloads\\SavePath' '/downloads/complete'
-              set_pref 'Downloads\\TempPath' '/downloads/incomplete'
-              set_pref 'Downloads\\TempPathEnabled' 'true'
-              exec /init
           environment:
             PUID: "1000"
             PGID: "1000"
@@ -401,40 +347,10 @@ def sabnzbd_compose(app):
         server:
           image: {app['image']}
           restart: on-failure
-          entrypoint: [/bin/sh, -c]
-          command:
-            - |
-              set -eu
-              bootstrap_key() {{
-                config=/config/sabnzbd.ini
-                api=http://127.0.0.1:8080/api
-                attempts=0
-                current_key=
-                while [ "$$attempts" -lt 120 ]; do
-                  if [ -f "$$config" ]; then
-                    current_key=$$(awk -F= '/^[[:space:]]*api_key[[:space:]]*=/ {{ value=$$0; sub(/^[^=]*=[[:space:]]*/, "", value); sub(/[[:space:]]+$$/, "", value); print value; exit }}' "$$config")
-                    [ -n "$$current_key" ] && break
-                  fi
-                  attempts=$$((attempts + 1)); sleep 2
-                done
-                [ -n "$$current_key" ] || return
-                set_misc() {{
-                  curl -fsS --get "$$api" --data-urlencode mode=set_config --data-urlencode section=misc --data-urlencode "keyword=$$1" --data-urlencode "value=$$2" --data-urlencode "apikey=$$current_key" --data-urlencode output=json >/dev/null
-                }}
-                set_misc host_whitelist "umbrel-arr-sabnzbd_server_1"
-                set_misc complete_dir /downloads/complete
-                set_misc download_dir /downloads/incomplete
-                set_misc username ""
-                set_misc password ""
-                set_misc api_key "$$SABNZBD_API_KEY"
-              }}
-              bootstrap_key &
-              exec /init
           environment:
             PUID: "1000"
             PGID: "1000"
             TZ: ${{TZ:-Etc/UTC}}
-            SABNZBD_API_KEY: ${{UMBREL_ARR_SABNZBD_API_KEY:-}}
           volumes:
             - ${{APP_DATA_DIR}}/data/config:/config
             - ${{UMBREL_ROOT}}/data/storage/downloads:/downloads
@@ -481,7 +397,7 @@ def setup_compose(app):
         + "\n  volumes:\n"
         "    - ${APP_DATA_DIR}/data:/data\n"
         "    - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n"
-        "    - ${UMBREL_ROOT}/data/storage/network:/network\n"
+        "    - ${UMBREL_ROOT}/data/storage/network:/network:rslave\n"
     )
     return service_compose("umbrelarr", 8080, block)
 
@@ -530,7 +446,7 @@ def compose(slug, app):
             slug,
             app,
             "    PUID: \"1000\"\n    PGID: \"1000\"\n    TZ: ${TZ:-Etc/UTC}",
-            "    - ${APP_DATA_DIR}/data/config:/config\n    - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n    - ${UMBREL_ROOT}/data/storage/network:/network",
+            "    - ${APP_DATA_DIR}/data/config:/config\n    - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n    - ${UMBREL_ROOT}/data/storage/network:/network:rslave",
         )
     if kind == "overseerr":
         return simple_compose(
@@ -592,13 +508,43 @@ def exports(slug, app):
     var = slug.upper().replace("-", "_")
     url = f"http://{app_id(slug)}_server_1:{app['internal_port']}"
     if app["kind"] == "servarr":
-        return random_key_exports(slug)
+        extra = dedent(
+            f"""\
+            config_file="${{EXPORTS_APP_DATA_DIR}}/config/config.xml"
+            if [ ! -s "$config_file" ]; then
+              mkdir -p "$(dirname "$config_file")"
+              printf '<Config>\\n  <AuthenticationMethod>External</AuthenticationMethod>\\n  <AuthenticationRequired>DisabledForLocalAddresses</AuthenticationRequired>\\n  <ApiKey>%s</ApiKey>\\n</Config>\\n' "$UMBREL_ARR_{var}_API_KEY" > "$config_file"
+            fi
+            """
+        ).strip()
+        return random_key_exports(slug, extra)
     if slug == "sabnzbd":
-        return random_key_exports(slug)
+        extra = dedent(
+            """\
+            config_file="${EXPORTS_APP_DATA_DIR}/config/sabnzbd.ini"
+            if [ ! -s "$config_file" ]; then
+              mkdir -p "$(dirname "$config_file")"
+              printf '__version__ = 19\\n__encoding__ = utf-8\\n[misc]\\napi_key = %s\\nhost_whitelist = umbrel-arr-sabnzbd_server_1\\ncomplete_dir = /downloads/complete\\ndownload_dir = /downloads/incomplete\\nusername =\\npassword =\\n' "$UMBREL_ARR_SABNZBD_API_KEY" > "$config_file"
+            fi
+            """
+        ).strip()
+        return random_key_exports(slug, extra)
+    if slug == "qbittorrent":
+        return dedent(
+            f"""\
+            export UMBREL_ARR_QBITTORRENT_URL="{url}"
+            config_file="${{EXPORTS_APP_DATA_DIR}}/config/qBittorrent/qBittorrent.conf"
+            if [ ! -s "$config_file" ]; then
+              mkdir -p "$(dirname "$config_file")"
+              printf '%s\\n' '[Preferences]' 'WebUI\\HostHeaderValidation=false' 'WebUI\\ServerDomains=*' 'WebUI\\SecureCookie=false' 'WebUI\\AuthSubnetWhitelistEnabled=true' 'WebUI\\AuthSubnetWhitelist=0.0.0.0/0' 'Downloads\\SavePath=/downloads/complete' 'Downloads\\TempPath=/downloads/incomplete' 'Downloads\\TempPathEnabled=true' > "$config_file"
+            fi
+            unset config_file
+            """
+        )
     if slug == "bazarr":
         extra = dedent(
             """\
-            config_file="${EXPORTS_APP_DATA_DIR}/data/config/config.yaml"
+            config_file="${EXPORTS_APP_DATA_DIR}/config/config/config.yaml"
             if [ ! -s "$config_file" ]; then
               mkdir -p "$(dirname "$config_file")"
               printf 'auth:\\n  apikey: %s\\n' "$UMBREL_ARR_BAZARR_API_KEY" > "$config_file"
@@ -609,7 +555,7 @@ def exports(slug, app):
     if slug == "overseerr":
         extra = dedent(
             """\
-            settings_file="${EXPORTS_APP_DATA_DIR}/data/config/settings.json"
+            settings_file="${EXPORTS_APP_DATA_DIR}/config/settings.json"
             if [ ! -s "$settings_file" ]; then
               mkdir -p "$(dirname "$settings_file")"
               printf '{"main":{"apiKey":"%s"}}\\n' "$UMBREL_ARR_OVERSEERR_API_KEY" > "$settings_file"

@@ -8,4 +8,9 @@ if [ ! -s "$key_file" ]; then
 fi
 export UMBREL_ARR_SONARR_API_KEY="$(cat "$key_file")"
 export UMBREL_ARR_SONARR_URL="http://umbrel-arr-sonarr_server_1:8989"
+config_file="${EXPORTS_APP_DATA_DIR}/config/config.xml"
+if [ ! -s "$config_file" ]; then
+  mkdir -p "$(dirname "$config_file")"
+  printf '<Config>\n  <AuthenticationMethod>External</AuthenticationMethod>\n  <AuthenticationRequired>DisabledForLocalAddresses</AuthenticationRequired>\n  <ApiKey>%s</ApiKey>\n</Config>\n' "$UMBREL_ARR_SONARR_API_KEY" > "$config_file"
+fi
 unset key_file old_umask

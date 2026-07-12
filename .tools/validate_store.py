@@ -51,6 +51,9 @@ def main(root):
             fail(f"{directory.name} must not publish host port bindings")
         if "/media" in compose_text:
             fail(f"{directory.name} must use /downloads or /network instead of /media")
+        for line in compose_text.splitlines():
+            if ":/network" in line and not line.strip().endswith(":/network:rslave"):
+                fail(f"{directory.name} must mount /network with rslave propagation")
         if "${UMBREL_ROOT}/data/storage" in compose_text and "STORAGE_DOWNLOADS" not in manifest_text:
             fail(f"{directory.name} must request STORAGE_DOWNLOADS permission")
         images = [line for line in compose_text.splitlines() if line.lstrip().startswith("image:")]

@@ -8,38 +8,11 @@ services:
   server:
     image: lscr.io/linuxserver/radarr:latest@sha256:39da107b5a9371fdaa651bd188049b863716a815385eb3a30d41071b7e1aeb33
     restart: on-failure
-    entrypoint: [/bin/sh, -c]
-    command:
-      - |
-        set -eu
-        config=/config/config.xml
-        mkdir -p /config
-        [ -f "$$config" ] || printf '<Config>\n</Config>\n' > "$$config"
-
-        set_xml_value() {
-          key=$$1
-          value=$$2
-          temporary=$$(mktemp /config/.umbrel-arr.XXXXXX)
-          XML_KEY="$$key" XML_VALUE="$$value" awk '
-            BEGIN { key=ENVIRON["XML_KEY"]; value=ENVIRON["XML_VALUE"]; open="<" key ">"; close="</" key ">"; written=0 }
-            index($$0, open) && index($$0, close) { print "  " open value close; written=1; next }
-            index($$0, "</Config>") && !written { print "  " open value close; written=1 }
-            { print }
-          ' "$$config" > "$$temporary"
-          cat "$$temporary" > "$$config"
-          rm -f "$$temporary"
-        }
-
-        set_xml_value AuthenticationMethod External
-        set_xml_value AuthenticationRequired DisabledForLocalAddresses
-        set_xml_value ApiKey "$$SERVICE_API_KEY"
-        exec /init
     environment:
       PUID: "1000"
       PGID: "1000"
       TZ: ${TZ:-Etc/UTC}
-      SERVICE_API_KEY: ${UMBREL_ARR_RADARR_API_KEY:-}
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - ${UMBREL_ROOT}/data/storage/downloads:/downloads
-      - ${UMBREL_ROOT}/data/storage/network:/network
+      - ${UMBREL_ROOT}/data/storage/network:/network:rslave

@@ -8,32 +8,6 @@ services:
   server:
     image: lscr.io/linuxserver/qbittorrent:latest@sha256:d8488fb24969bb0954cf64a1ca1cf7a763031641ba4246734964faea6f0b807a
     restart: on-failure
-    entrypoint: [/bin/sh, -c]
-    command:
-      - |
-        set -eu
-        config=/config/qBittorrent/qBittorrent.conf
-        mkdir -p "$$(dirname "$$config")"
-        [ -f "$$config" ] || printf '[Preferences]\n' > "$$config"
-        set_pref() {
-          key=$$1; value=$$2; tmp=$$(mktemp)
-          QBIT_KEY="$$key" QBIT_VALUE="$$value" awk '
-            BEGIN { key=ENVIRON["QBIT_KEY"]; value=ENVIRON["QBIT_VALUE"]; written=0 }
-            $$0 == "[Preferences]" { print; print key "=" value; written=1; next }
-            index($$0, key "=") == 1 { next }
-            { print }
-          ' "$$config" > "$$tmp"
-          cat "$$tmp" > "$$config"; rm -f "$$tmp"
-        }
-        set_pref 'WebUI\HostHeaderValidation' 'false'
-        set_pref 'WebUI\ServerDomains' '*'
-        set_pref 'WebUI\SecureCookie' 'false'
-        set_pref 'WebUI\AuthSubnetWhitelistEnabled' 'true'
-        set_pref 'WebUI\AuthSubnetWhitelist' '0.0.0.0/0'
-        set_pref 'Downloads\SavePath' '/downloads/complete'
-        set_pref 'Downloads\TempPath' '/downloads/incomplete'
-        set_pref 'Downloads\TempPathEnabled' 'true'
-        exec /init
     environment:
       PUID: "1000"
       PGID: "1000"

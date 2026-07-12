@@ -6,7 +6,7 @@ services:
       APP_HOST: umbrel-arr-umbrelarr_server_1
       APP_PORT: 8080
   server:
-    image: ghcr.io/umbrel-arr/umbrelarr:1.0.0@sha256:c1f012c615e1b65e6f264c27496134f8a5ca28d764a54d6b0dc12d9776321c68
+    image: ghcr.io/umbrel-arr/umbrelarr:1.0.1@sha256:9197f19d04440a08c04d976aa0643f0466a498932fc9968360eb8c5237a38823
     restart: on-failure
     environment:
       TZ: ${TZ:-Etc/UTC}
@@ -40,4 +40,4 @@ services:
     volumes:
       - ${APP_DATA_DIR}/data:/data
       - ${UMBREL_ROOT}/data/storage/downloads:/downloads
-      - ${UMBREL_ROOT}/data/storage/network:/network
+      - ${UMBREL_ROOT}/data/storage/network:/network:rslave

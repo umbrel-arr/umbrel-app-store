@@ -8,40 +8,10 @@ services:
   server:
     image: lscr.io/linuxserver/sabnzbd:latest@sha256:30cc2eb9e1c8b7c5bb90dbf3c7abb0e66643c21c3710e273a82d2f36239e176d
     restart: on-failure
-    entrypoint: [/bin/sh, -c]
-    command:
-      - |
-        set -eu
-        bootstrap_key() {
-          config=/config/sabnzbd.ini
-          api=http://127.0.0.1:8080/api
-          attempts=0
-          current_key=
-          while [ "$$attempts" -lt 120 ]; do
-            if [ -f "$$config" ]; then
-              current_key=$$(awk -F= '/^[[:space:]]*api_key[[:space:]]*=/ { value=$$0; sub(/^[^=]*=[[:space:]]*/, "", value); sub(/[[:space:]]+$$/, "", value); print value; exit }' "$$config")
-              [ -n "$$current_key" ] && break
-            fi
-            attempts=$$((attempts + 1)); sleep 2
-          done
-          [ -n "$$current_key" ] || return
-          set_misc() {
-            curl -fsS --get "$$api" --data-urlencode mode=set_config --data-urlencode section=misc --data-urlencode "keyword=$$1" --data-urlencode "value=$$2" --data-urlencode "apikey=$$current_key" --data-urlencode output=json >/dev/null
-          }
-          set_misc host_whitelist "umbrel-arr-sabnzbd_server_1"
-          set_misc complete_dir /downloads/complete
-          set_misc download_dir /downloads/incomplete
-          set_misc username ""
-          set_misc password ""
-          set_misc api_key "$$SABNZBD_API_KEY"
-        }
-        bootstrap_key &
-        exec /init
     environment:
       PUID: "1000"
       PGID: "1000"
       TZ: ${TZ:-Etc/UTC}
-      SABNZBD_API_KEY: ${UMBREL_ARR_SABNZBD_API_KEY:-}
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - ${UMBREL_ROOT}/data/storage/downloads:/downloads
