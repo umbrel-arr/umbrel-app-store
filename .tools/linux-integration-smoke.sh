@@ -156,6 +156,8 @@ done
 setup_exec python3 -c 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8080/healthz").read()'
 
 status=""
+last_failure_signature=""
+stable_failures=0
 for _attempt in $(seq 1 90); do
   status="$(setup_exec python3 -c 'import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:8080/api/status").read().decode())' 2>/dev/null || true)"
   if printf '%s' "$status" | python3 -c '
@@ -170,6 +172,33 @@ pending = [
 ]
 raise SystemExit(not (data.get("lastCompletedAt") and not data.get("running") and not counts.get("failed") and not pending))
 ' 2>/dev/null; then
+    break
+  fi
+
+  failure_signature="$(printf '%s' "$status" | python3 -c '
+import json, sys
+data = json.load(sys.stdin)
+if data.get("running"):
+    raise SystemExit
+failed = sorted(
+    (service.get("id"), service.get("detail"))
+    for service in data.get("services", [])
+    if service.get("status") == "failed"
+)
+if failed:
+    print(json.dumps(failed, separators=(",", ":")))
+' 2>/dev/null || true)"
+  if [ -n "$failure_signature" ] && [ "$failure_signature" = "$last_failure_signature" ]; then
+    stable_failures=$((stable_failures + 1))
+  elif [ -n "$failure_signature" ]; then
+    last_failure_signature="$failure_signature"
+    stable_failures=1
+  else
+    last_failure_signature=""
+    stable_failures=0
+  fi
+  if [ "$stable_failures" -ge 3 ]; then
+    printf '%s\n' "Stopping after three identical deterministic failure reports." >&2
     break
   fi
 

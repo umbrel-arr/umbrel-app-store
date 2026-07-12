@@ -204,10 +204,10 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "port": 30992,
         "internal_port": 8080,
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.0.3@sha256:d859430819613b1ac8406f2fbded140dfbf5bb6c0d08a6bfdfdc8a671886d23f",
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.0.4@sha256:72d17dd17e7824000ca17505dad1bd5908efc4252ebc24aa115a3a6eedda402a",
         "tagline": "Manage and automatically configure the complete stack",
         "description": "umbrelarr is the management surface for Umbrel Arr. It installs the service dependencies, accepts the one-time Privado login, configures all owned integrations, reports required actions, and repairs managed drift without touching user-owned settings.",
         "developer": "Umbrel Arr",
