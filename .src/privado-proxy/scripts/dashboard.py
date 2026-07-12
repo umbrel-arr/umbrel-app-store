@@ -72,6 +72,36 @@ def process_running(name):
     return code == 0
 
 
+def credentials_configured():
+    if os.environ.get("PRIVADO_USERNAME") and os.environ.get("PRIVADO_PASSWORD"):
+        return True
+
+    config_file = os.environ.get("CONFIG_FILE", "/config/privado.env")
+    try:
+        assignments = {}
+        with open(config_file, encoding="utf-8") as handle:
+            for line in handle:
+                key, separator, value = line.strip().partition("=")
+                if separator and key in {"PRIVADO_USERNAME", "PRIVADO_PASSWORD"}:
+                    parsed = shlex.split(value)
+                    assignments[key] = parsed[0] if parsed else ""
+    except (OSError, ValueError):
+        return False
+
+    return bool(
+        assignments.get("PRIVADO_USERNAME")
+        and assignments.get("PRIVADO_PASSWORD")
+    )
+
+
+def supervisor_state(program):
+    output, _, code = run(["supervisorctl", "status", program], timeout=5)
+    if code != 0 or not output:
+        return "unknown"
+    fields = output.split()
+    return fields[1].lower() if len(fields) > 1 else "unknown"
+
+
 def get_status():
     handshake = get_handshake()
     transfer = get_transfer()
@@ -94,10 +124,8 @@ def get_status():
         "transfer": transfer,
         "publicIp": get_public_ip(),
         "server": os.environ.get("PRIVADO_SERVER", ""),
-        "credentialsConfigured": bool(
-            os.environ.get("PRIVADO_USERNAME")
-            and os.environ.get("PRIVADO_PASSWORD")
-        ),
+        "credentialsConfigured": credentials_configured(),
+        "vpnProcessState": supervisor_state("main"),
         "configFile": os.environ.get("CONFIG_FILE", "/config/privado.env"),
         "socksPort": os.environ.get("SOCK_PORT", "1080"),
         "dashboardEnabled": truthy(os.environ.get("DASHBOARD_ENABLED", "false")),
@@ -123,7 +151,15 @@ def save_config(username, password):
 
 
 def restart_main():
-    run(["supervisorctl", "restart", "main"], timeout=10)
+    state = supervisor_state("main")
+    action = "restart" if state in {"running", "starting"} else "start"
+    output, error, code = run(["supervisorctl", action, "main"], timeout=30)
+    if code == 0:
+        return True
+
+    detail = error or output or f"supervisorctl {action} failed"
+    print(f"Unable to start VPN process: {detail}", flush=True)
+    return False
 
 
 def human_bytes(value):
@@ -484,7 +520,13 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         save_config(username, password)
-        restart_main()
+        if not restart_main():
+            self.send_body(
+                "text/plain; charset=utf-8",
+                "Login was saved, but the VPN process could not be started. Retry or check the Privado VPN app logs.\n",
+                status=503,
+            )
+            return
         self.send_response(303)
         self.send_header("Location", "/")
         self.end_headers()

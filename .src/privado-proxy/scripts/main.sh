@@ -52,8 +52,8 @@ if [[ -z ${PRIVADO_USERNAME} ]] || [[ -z ${PRIVADO_PASSWORD} ]]; then
   log "ERROR: PRIVADO_USERNAME and PRIVADO_PASSWORD are required"
   log "ERROR: Set these via environment variables, Docker secrets, or ${CONFIG_FILE}"
   if [[ "${DASHBOARD_ENABLED,,}" == "true" ]]; then
-    log "INFO: Dashboard remains available for browser setup"
-    while true; do sleep 3600; done
+    log "INFO: Dashboard remains available for browser setup; VPN process is waiting to be started"
+    exit 0
   fi
   exit 1
 fi
