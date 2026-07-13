@@ -174,6 +174,7 @@ setup_request() {
   shift 2
   setup_exec python3 -c '
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -186,7 +187,12 @@ request = urllib.request.Request(
     method=method,
     headers={"Content-Type": "application/x-www-form-urlencoded"},
 )
-print(urllib.request.urlopen(request).read().decode())
+try:
+    print(urllib.request.urlopen(request).read().decode())
+except urllib.error.HTTPError as error:
+    detail = error.read().decode("utf-8", "replace")
+    print(detail or f"HTTP {error.code}", file=sys.stderr)
+    raise SystemExit(1)
 ' "$method" "$path" "$@"
 }
 
