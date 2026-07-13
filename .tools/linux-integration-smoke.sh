@@ -297,8 +297,11 @@ except urllib.error.HTTPError as error:
         file=sys.stderr,
     )
     raise SystemExit(1)
-if body.casefold().startswith("fails") or "SID=" not in cookie:
-    cookie_fields = [part.strip().partition("=")[0] for part in cookie.split(";") if part.strip()]
+cookie_fields = [part.strip().partition("=")[0] for part in cookie.split(";") if part.strip()]
+session_cookie = cookie_fields[0] if cookie_fields else ""
+if body.casefold().startswith("fails") or not (
+    session_cookie == "SID" or session_cookie.startswith("QBT_SID_")
+):
     print(
         f"qBittorrent returned an unusable login response; "
         f"password_length={len(password)}; response={body[:80]!r}; "
