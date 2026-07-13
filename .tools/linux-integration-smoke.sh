@@ -243,12 +243,22 @@ if [ "$needs_qbittorrent_password" = "1" ]; then
       -f "$OVERRIDE" logs --no-color server 2>&1 \
     | python3 -c '
 import re, sys
-matches = re.findall(
+content = sys.stdin.read()
+matches = list(re.finditer(
     r"temporary password is provided for this session:\s*([^\s\x1b]+)",
-    sys.stdin.read(),
+    content,
     re.IGNORECASE,
-)
-print(matches[-1] if matches else "")
+))
+if matches:
+    match = matches[-1]
+    password = match.group(1)
+    start = content.rfind("\n", 0, match.start()) + 1
+    end = content.find("\n", match.end())
+    line = content[start:len(content) if end < 0 else end]
+    print(line.replace(password, "[REDACTED]"), file=sys.stderr)
+    print(password)
+else:
+    print("")
 '
   )"
   if [ -z "$qbittorrent_temporary_password" ]; then
@@ -267,16 +277,12 @@ import urllib.request
 
 password = sys.argv[1]
 origin = "http://umbrel-arr-qbittorrent_server_1:8080"
-web_origin = "http://localhost:8080"
 request = urllib.request.Request(
     f"{origin}/api/v2/auth/login",
     data=urllib.parse.urlencode({"username": "admin", "password": password}).encode(),
     method="POST",
     headers={
         "Content-Type": "application/x-www-form-urlencoded",
-        "Host": "localhost:8080",
-        "Origin": web_origin,
-        "Referer": f"{web_origin}/",
     },
 )
 try:
@@ -294,7 +300,8 @@ except urllib.error.HTTPError as error:
 if body.casefold().startswith("fails") or "SID=" not in cookie:
     print(
         f"qBittorrent returned an unusable login response; "
-        f"password_length={len(password)}; response={body[:80]!r}",
+        f"password_length={len(password)}; response={body[:80]!r}; "
+        f"headers={list(response.headers.keys())!r}",
         file=sys.stderr,
     )
     raise SystemExit(1)
