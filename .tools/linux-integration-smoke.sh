@@ -267,14 +267,16 @@ import urllib.request
 
 password = sys.argv[1]
 origin = "http://umbrel-arr-qbittorrent_server_1:8080"
+web_origin = "http://localhost:8080"
 request = urllib.request.Request(
     f"{origin}/api/v2/auth/login",
     data=urllib.parse.urlencode({"username": "admin", "password": password}).encode(),
     method="POST",
     headers={
         "Content-Type": "application/x-www-form-urlencoded",
-        "Origin": origin,
-        "Referer": f"{origin}/",
+        "Host": "localhost:8080",
+        "Origin": web_origin,
+        "Referer": f"{web_origin}/",
     },
 )
 try:
