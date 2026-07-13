@@ -289,7 +289,7 @@ except urllib.error.HTTPError as error:
         file=sys.stderr,
     )
     raise SystemExit(1)
-if not body.casefold().startswith("ok") or "SID=" not in cookie:
+if body.casefold().startswith("fails") or "SID=" not in cookie:
     print(
         f"qBittorrent returned an unusable login response; "
         f"password_length={len(password)}; response={body[:80]!r}",
