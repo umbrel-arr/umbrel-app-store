@@ -255,6 +255,48 @@ print(matches[-1] if matches else "")
     printf '%s\n' "qBittorrent requires its one-time password, but the smoke harness could not find it in the startup log." >&2
     exit 1
   fi
+
+  # Prove that the redacted log handoff is a usable credential before asking
+  # umbrelarr to consume it. The password remains in argv/memory only; output
+  # contains status metadata and never echoes the secret.
+  setup_exec python3 -c '
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+
+password = sys.argv[1]
+origin = "http://umbrel-arr-qbittorrent_server_1:8080"
+request = urllib.request.Request(
+    f"{origin}/api/v2/auth/login",
+    data=urllib.parse.urlencode({"username": "admin", "password": password}).encode(),
+    method="POST",
+    headers={
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Origin": origin,
+        "Referer": f"{origin}/",
+    },
+)
+try:
+    response = urllib.request.urlopen(request)
+    body = response.read().decode("utf-8", "replace").strip()
+    cookie = response.headers.get("Set-Cookie", "")
+except urllib.error.HTTPError as error:
+    body = error.read().decode("utf-8", "replace").strip()
+    print(
+        f"qBittorrent rejected its startup credential: HTTP {error.code}; "
+        f"password_length={len(password)}; response={body[:80]!r}",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+if not body.casefold().startswith("ok") or "SID=" not in cookie:
+    print(
+        f"qBittorrent returned an unusable login response; "
+        f"password_length={len(password)}; response={body[:80]!r}",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+' "$qbittorrent_temporary_password"
 fi
 
 setup_request POST /api/setup/confirm \
