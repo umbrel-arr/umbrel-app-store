@@ -6,38 +6,38 @@ services:
       APP_HOST: umbrel-arr-umbrelarr_server_1
       APP_PORT: 8080
   server:
-    image: ghcr.io/umbrel-arr/umbrelarr:1.0.5@sha256:f9828259a10abf0eaa965257869b522d3de8586ac8d5fb92227d78d578caf4dc
+    image: ghcr.io/umbrel-arr/umbrelarr:1.1.0@sha256:6c911ff114317e0cd7458caa0dbd25c0bb2076df54835834fb4913926659b8c7
     restart: on-failure
+    read_only: true
     environment:
       TZ: ${TZ:-Etc/UTC}
       DEVICE_DOMAIN_NAME: ${DEVICE_DOMAIN_NAME:-umbrel.local}
-      STATE_DIR: /data
+      UMBREL_ARR_MANAGED_CONFIG_DIR: /managed-config
       RECONCILE_INTERVAL: "300"
       UMBREL_ARR_PRIVADO_VPN_URL: ${UMBREL_ARR_PRIVADO_VPN_URL:-http://umbrel-arr-privado-vpn_server_1:8080}
       UMBREL_ARR_FLARESOLVERR_URL: ${UMBREL_ARR_FLARESOLVERR_URL:-http://umbrel-arr-flaresolverr_server_1:8191}
       UMBREL_ARR_PROWLARR_URL: ${UMBREL_ARR_PROWLARR_URL:-http://umbrel-arr-prowlarr_server_1:9696}
-      UMBREL_ARR_PROWLARR_API_KEY: ${UMBREL_ARR_PROWLARR_API_KEY:-}
       UMBREL_ARR_QBITTORRENT_URL: ${UMBREL_ARR_QBITTORRENT_URL:-http://umbrel-arr-qbittorrent_server_1:8080}
       UMBREL_ARR_SABNZBD_URL: ${UMBREL_ARR_SABNZBD_URL:-http://umbrel-arr-sabnzbd_server_1:8080}
-      UMBREL_ARR_SABNZBD_API_KEY: ${UMBREL_ARR_SABNZBD_API_KEY:-}
       UMBREL_ARR_SONARR_URL: ${UMBREL_ARR_SONARR_URL:-http://umbrel-arr-sonarr_server_1:8989}
-      UMBREL_ARR_SONARR_API_KEY: ${UMBREL_ARR_SONARR_API_KEY:-}
       UMBREL_ARR_SONARR_4K_URL: ${UMBREL_ARR_SONARR_4K_URL:-http://umbrel-arr-sonarr-4k_server_1:8989}
-      UMBREL_ARR_SONARR_4K_API_KEY: ${UMBREL_ARR_SONARR_4K_API_KEY:-}
       UMBREL_ARR_RADARR_URL: ${UMBREL_ARR_RADARR_URL:-http://umbrel-arr-radarr_server_1:7878}
-      UMBREL_ARR_RADARR_API_KEY: ${UMBREL_ARR_RADARR_API_KEY:-}
       UMBREL_ARR_RADARR_4K_URL: ${UMBREL_ARR_RADARR_4K_URL:-http://umbrel-arr-radarr-4k_server_1:7878}
-      UMBREL_ARR_RADARR_4K_API_KEY: ${UMBREL_ARR_RADARR_4K_API_KEY:-}
       UMBREL_ARR_BAZARR_URL: ${UMBREL_ARR_BAZARR_URL:-http://umbrel-arr-bazarr_server_1:6767}
-      UMBREL_ARR_BAZARR_API_KEY: ${UMBREL_ARR_BAZARR_API_KEY:-}
       UMBREL_ARR_OVERSEERR_URL: ${UMBREL_ARR_OVERSEERR_URL:-http://umbrel-arr-overseerr_server_1:5055}
-      UMBREL_ARR_OVERSEERR_API_KEY: ${UMBREL_ARR_OVERSEERR_API_KEY:-}
       UMBREL_ARR_PROFILARR_URL: ${UMBREL_ARR_PROFILARR_URL:-http://umbrel-arr-profilarr_server_1:6868}
       UMBREL_ARR_LIDARR_URL: ${UMBREL_ARR_LIDARR_URL:-http://umbrel-arr-lidarr_server_1:8686}
-      UMBREL_ARR_LIDARR_API_KEY: ${UMBREL_ARR_LIDARR_API_KEY:-}
+      UMBREL_ARR_QBITTORRENT_USERNAME: ${UMBREL_ARR_QBITTORRENT_USERNAME:-admin}
+      UMBREL_ARR_QBITTORRENT_PASSWORD: ${UMBREL_ARR_QBITTORRENT_PASSWORD:-}
       UMBREL_ARR_PRIVADO_SOCKS_HOST: ${UMBREL_ARR_PRIVADO_SOCKS_HOST:-umbrel-arr-privado-vpn_server_1}
       UMBREL_ARR_PRIVADO_SOCKS_PORT: ${UMBREL_ARR_PRIVADO_SOCKS_PORT:-1080}
     volumes:
-      - ${APP_DATA_DIR}:/data
-      - ${UMBREL_ROOT}/data/storage/downloads:/downloads
-      - ${UMBREL_ROOT}/data/storage/network:/network:rslave
+      - ${UMBREL_ARR_PROWLARR_CONFIG_DIR}:/managed-config/prowlarr:ro
+      - ${UMBREL_ARR_SABNZBD_CONFIG_DIR}:/managed-config/sabnzbd:ro
+      - ${UMBREL_ARR_SONARR_CONFIG_DIR}:/managed-config/sonarr:ro
+      - ${UMBREL_ARR_SONARR_4K_CONFIG_DIR}:/managed-config/sonarr-4k:ro
+      - ${UMBREL_ARR_RADARR_CONFIG_DIR}:/managed-config/radarr:ro
+      - ${UMBREL_ARR_RADARR_4K_CONFIG_DIR}:/managed-config/radarr-4k:ro
+      - ${UMBREL_ARR_BAZARR_CONFIG_DIR}:/managed-config/bazarr:ro
+      - ${UMBREL_ARR_OVERSEERR_CONFIG_DIR}:/managed-config/overseerr:ro
+      - ${UMBREL_ARR_LIDARR_CONFIG_DIR}:/managed-config/lidarr:ro

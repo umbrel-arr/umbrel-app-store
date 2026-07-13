@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-sabnzbd
 category: Media
 name: SABnzbd
-version: "5.0.4-umbrel.2"
+version: "5.0.4-umbrel.3"
 tagline: Usenet client managed by umbrelarr
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-sabnzbd/icon.svg
 description: >-
   Downloads from your Usenet providers to shared Umbrel storage. umbrelarr applies VPN routing, paths, and media categories; you only add provider credentials.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr.
 developer: SABnzbd
 website: https://sabnzbd.org
 dependencies: []

@@ -7,6 +7,12 @@ from pathlib import Path
 
 IMAGE_RE = re.compile(r"^\s*image:\s*\S+@sha256:[0-9a-f]{64}\s*$", re.MULTILINE)
 KEY_RE = re.compile(r"^(id|port|icon):\s*(.+?)\s*$", re.MULTILINE)
+EXPORT_MUTATION_RE = re.compile(
+    r"(?:^|\s)(?:mkdir|touch|chmod|chown|install|truncate|tee|openssl)\s|"
+    r"sed\s+-i|(?:^|\s)printf\s|>\s*[\"']?\$",
+    re.MULTILINE,
+)
+EXPORT_LINE_RE = re.compile(r'^export UMBREL_ARR_[A-Z0-9_]+="[^`]*"$')
 
 
 def fail(message):
@@ -63,12 +69,28 @@ def main(root):
         images = [line for line in compose_text.splitlines() if line.lstrip().startswith("image:")]
         if not images or len(IMAGE_RE.findall(compose_text)) != len(images):
             fail(f"{directory.name} contains an unpinned image")
-        if "${APP_DATA_DIR}" not in compose_text and directory.name not in {
-            "umbrel-arr-flaresolverr",
-        }:
+        if directory.name == "umbrel-arr-umbrelarr":
+            if (directory / "app").exists():
+                fail("umbrel-arr-umbrelarr must use its published image instead of embedded source")
+            if "read_only: true" not in compose_text:
+                fail("umbrel-arr-umbrelarr must use a read-only root filesystem")
+            for forbidden in ("${APP_DATA_DIR}", "STATE_DIR", "docker.sock", ":/data"):
+                if forbidden in compose_text:
+                    fail(f"umbrel-arr-umbrelarr stateless runtime contains {forbidden}")
+            for line in compose_text.splitlines():
+                if ":/managed-config/" in line and not line.strip().endswith(":ro"):
+                    fail("umbrel-arr-umbrelarr config mounts must be read-only")
+        elif "${APP_DATA_DIR}" not in compose_text and directory.name != "umbrel-arr-flaresolverr":
             fail(f"{directory.name} does not persist data under APP_DATA_DIR")
-        if directory.name == "umbrel-arr-umbrelarr" and (directory / "app").exists():
-            fail("umbrel-arr-umbrelarr must use its published image instead of embedded source")
+
+        exports = directory / "exports.sh"
+        if exports.exists():
+            exports_text = exports.read_text()
+            if EXPORT_MUTATION_RE.search(exports_text):
+                fail(f"{directory.name} exports.sh must not create or modify files")
+            for line in exports_text.splitlines():
+                if not EXPORT_LINE_RE.fullmatch(line) or "$(" in line:
+                    fail(f"{directory.name} exports.sh may only export declarative handoff values")
         count += 1
 
     if count != 14:

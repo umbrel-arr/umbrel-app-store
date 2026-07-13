@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-lidarr
 category: Media
 name: Lidarr
-version: "3.1.0.4875-umbrel.2"
+version: "3.1.0.4875-umbrel.3"
 tagline: Music manager for the Arr stack
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-lidarr/icon.svg
 description: >-
   Manages music in Umbrel or linked network storage. umbrelarr configures the music root, both download clients, and Prowlarr synchronization.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr.
 developer: Lidarr
 website: https://lidarr.audio
 dependencies: []

@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-sonarr-4k
 category: Media
 name: Sonarr 4K
-version: "4.0.17.2952-umbrel.2"
+version: "4.0.17.2952-umbrel.3"
 tagline: Dedicated 4K TV series manager
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-sonarr-4k/icon.svg
 description: >-
   Keeps a separate 2160p series library under network storage with its own category, root, quality profiles, and request-server registration.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr.
 developer: Sonarr
 website: https://sonarr.tv
 dependencies: []

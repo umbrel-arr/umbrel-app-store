@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-umbrelarr
 category: Media
 name: umbrelarr
-version: "1.0.6"
-tagline: Manage and automatically configure the complete stack
+version: "1.1.0"
+tagline: Connect and manage your installed Umbrel Arr apps
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-umbrelarr/icon.svg
 description: >-
-  umbrelarr is the management surface for Umbrel Arr. It installs the service dependencies, accepts the one-time Privado login, configures all owned integrations, reports required actions, and repairs managed drift without touching user-owned settings.
+  umbrelarr is the management surface for Umbrel Arr. Install its required apps from the store first, then use the explicit setup step to detect and connect them before any managed configuration begins.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Adds explicit setup and a stateless API-only runtime. Before installing 1.1, update Prowlarr, qBittorrent, SABnzbd, both Sonarr and Radarr packages, Bazarr, Overseerr, and Lidarr to their .3 handoff revisions.
 developer: Umbrel Arr
 website: https://github.com/umbrel-arr/umbrelarr
 dependencies:
@@ -25,8 +25,6 @@ dependencies:
   - umbrel-arr-overseerr
   - umbrel-arr-profilarr
   - umbrel-arr-lidarr
-permissions:
-  - STORAGE_DOWNLOADS
 repo: https://github.com/umbrel-arr/umbrelarr
 support: https://github.com/umbrel-arr/umbrelarr/issues
 port: 30992

@@ -10,6 +10,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
 ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
 ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
+UMBRELARR_RELEASE_NOTES = "Adds explicit setup and a stateless API-only runtime. Before installing 1.1, update Prowlarr, qBittorrent, SABnzbd, both Sonarr and Radarr packages, Bazarr, Overseerr, and Lidarr to their .3 handoff revisions."
+API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
+QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
 
 APPS = {
     "privado-vpn": {
@@ -46,12 +49,13 @@ APPS = {
     "prowlarr": {
         "name": "Prowlarr",
         "category": "Media",
-        "version": "2.3.5.5327-umbrel.2",
+        "version": "2.3.5.5327-umbrel.3",
         "port": 30982,
         "internal_port": 9696,
         "image": "lscr.io/linuxserver/prowlarr:latest@sha256:3e9bd62ca90c97c5df75b7012e10a29f6926e62807deeddc1dc89e6e2fd141e1",
         "tagline": "Indexer manager for the complete Arr stack",
         "description": "Manages indexers for Sonarr, Radarr, their 4K instances, and Lidarr. umbrelarr owns service registration, VPN proxy settings, and FlareSolverr integration.",
+        "release_notes": API_HANDOFF_RELEASE_NOTES,
         "developer": "Prowlarr",
         "website": "https://prowlarr.com",
         "repo": "https://github.com/Prowlarr/Prowlarr",
@@ -63,12 +67,13 @@ APPS = {
     "qbittorrent": {
         "name": "qBittorrent",
         "category": "Media",
-        "version": "5.2.4-umbrel.2",
+        "version": "5.2.4-umbrel.3",
         "port": 30983,
         "internal_port": 8080,
         "image": "lscr.io/linuxserver/qbittorrent:latest@sha256:d8488fb24969bb0954cf64a1ca1cf7a763031641ba4246734964faea6f0b807a",
         "tagline": "Torrent client managed by umbrelarr",
         "description": "Downloads torrents to shared Umbrel storage. umbrelarr applies Privado SOCKS5 routing and creates the HD, 4K, TV, movie, and music categories.",
+        "release_notes": QBITTORRENT_RELEASE_NOTES,
         "developer": "qBittorrent",
         "website": "https://www.qbittorrent.org",
         "repo": "https://github.com/qbittorrent/qBittorrent",
@@ -78,12 +83,13 @@ APPS = {
     "sabnzbd": {
         "name": "SABnzbd",
         "category": "Media",
-        "version": "5.0.4-umbrel.2",
+        "version": "5.0.4-umbrel.3",
         "port": 30984,
         "internal_port": 8080,
         "image": "lscr.io/linuxserver/sabnzbd:latest@sha256:30cc2eb9e1c8b7c5bb90dbf3c7abb0e66643c21c3710e273a82d2f36239e176d",
         "tagline": "Usenet client managed by umbrelarr",
         "description": "Downloads from your Usenet providers to shared Umbrel storage. umbrelarr applies VPN routing, paths, and media categories; you only add provider credentials.",
+        "release_notes": API_HANDOFF_RELEASE_NOTES,
         "developer": "SABnzbd",
         "website": "https://sabnzbd.org",
         "repo": "https://github.com/sabnzbd/sabnzbd",
@@ -93,12 +99,13 @@ APPS = {
     "sonarr": {
         "name": "Sonarr",
         "category": "Media",
-        "version": "4.0.17.2952-umbrel.2",
+        "version": "4.0.17.2952-umbrel.3",
         "port": 30985,
         "internal_port": 8989,
         "image": "lscr.io/linuxserver/sonarr:latest@sha256:633e0e66d85ce4e9172608a37d3d24e124b3e485fc0d946f533c3bb5875227e9",
         "tagline": "HD TV series manager",
         "description": "Manages the HD series library in Umbrel or linked network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.",
+        "release_notes": API_HANDOFF_RELEASE_NOTES,
         "developer": "Sonarr",
         "website": "https://sonarr.tv",
         "repo": "https://github.com/Sonarr/Sonarr",
@@ -110,12 +117,13 @@ APPS = {
     "sonarr-4k": {
         "name": "Sonarr 4K",
         "category": "Media",
-        "version": "4.0.17.2952-umbrel.2",
+        "version": "4.0.17.2952-umbrel.3",
         "port": 30986,
         "internal_port": 8989,
         "image": "lscr.io/linuxserver/sonarr:latest@sha256:633e0e66d85ce4e9172608a37d3d24e124b3e485fc0d946f533c3bb5875227e9",
         "tagline": "Dedicated 4K TV series manager",
         "description": "Keeps a separate 2160p series library under network storage with its own category, root, quality profiles, and request-server registration.",
+        "release_notes": API_HANDOFF_RELEASE_NOTES,
         "developer": "Sonarr",
         "website": "https://sonarr.tv",
         "repo": "https://github.com/Sonarr/Sonarr",
@@ -127,12 +135,13 @@ APPS = {
     "radarr": {
         "name": "Radarr",
         "category": "Media",
-        "version": "6.1.1.10360-umbrel.2",
+        "version": "6.1.1.10360-umbrel.3",
         "port": 30987,
         "internal_port": 7878,
         "image": "lscr.io/linuxserver/radarr:latest@sha256:39da107b5a9371fdaa651bd188049b863716a815385eb3a30d41071b7e1aeb33",
         "tagline": "HD movie manager",
         "description": "Manages the HD movie library in Umbrel or linked network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.",
+        "release_notes": API_HANDOFF_RELEASE_NOTES,
         "developer": "Radarr",
         "website": "https://radarr.video",
         "repo": "https://github.com/Radarr/Radarr",
@@ -144,12 +153,13 @@ APPS = {
     "radarr-4k": {
         "name": "Radarr 4K",
         "category": "Media",
-        "version": "6.1.1.10360-umbrel.2",
+        "version": "6.1.1.10360-umbrel.3",
         "port": 30988,
         "internal_port": 7878,
         "image": "lscr.io/linuxserver/radarr:latest@sha256:39da107b5a9371fdaa651bd188049b863716a815385eb3a30d41071b7e1aeb33",
         "tagline": "Dedicated 4K movie manager",
         "description": "Keeps a separate 2160p movie library under network storage with its own category, root, quality profiles, and request-server registration.",
+        "release_notes": API_HANDOFF_RELEASE_NOTES,
         "developer": "Radarr",
         "website": "https://radarr.video",
         "repo": "https://github.com/Radarr/Radarr",
@@ -161,12 +171,13 @@ APPS = {
     "bazarr": {
         "name": "Bazarr",
         "category": "Media",
-        "version": "1.6.0-umbrel.2",
+        "version": "1.6.0-umbrel.3",
         "port": 30989,
         "internal_port": 6767,
         "image": "lscr.io/linuxserver/bazarr:latest@sha256:5d916d07404296ec35ee726e13e0e558f05952724cf494a7f009d913fb2b12f3",
         "tagline": "Subtitle manager for HD Sonarr and Radarr",
         "description": "Manages subtitles beside the HD series and movie libraries. umbrelarr connects Sonarr and Radarr and routes provider traffic through Privado.",
+        "release_notes": API_HANDOFF_RELEASE_NOTES,
         "developer": "Bazarr",
         "website": "https://www.bazarr.media",
         "repo": "https://github.com/morpheus65535/bazarr",
@@ -176,12 +187,13 @@ APPS = {
     "overseerr": {
         "name": "Overseerr",
         "category": "Media",
-        "version": "1.35.0-umbrel.2",
+        "version": "1.35.0-umbrel.3",
         "port": 30990,
         "internal_port": 5055,
         "image": "sctx/overseerr:latest@sha256:6197516c9d7b58ccf113455e32aafb94df5d91995fe50e8c2cae6ba6c7c7b7de",
         "tagline": "Media requests for HD and 4K libraries",
         "description": "Provides media discovery and requests. Complete Plex sign-in once; umbrelarr then registers the HD and 4K Sonarr and Radarr servers automatically.",
+        "release_notes": API_HANDOFF_RELEASE_NOTES,
         "developer": "Overseerr",
         "website": "https://overseerr.dev",
         "repo": "https://github.com/sct/overseerr",
@@ -207,12 +219,15 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.0.6",
+        "version": "1.1.0",
         "port": 30992,
         "internal_port": 8080,
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.0.5@sha256:f9828259a10abf0eaa965257869b522d3de8586ac8d5fb92227d78d578caf4dc",
-        "tagline": "Manage and automatically configure the complete stack",
-        "description": "umbrelarr is the management surface for Umbrel Arr. It installs the service dependencies, accepts the one-time Privado login, configures all owned integrations, reports required actions, and repairs managed drift without touching user-owned settings.",
+        # Release gate: replace this last-known-good pin with the published
+        # multi-architecture 1.1.0 digest before the store PR is published.
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.1.0@sha256:6c911ff114317e0cd7458caa0dbd25c0bb2076df54835834fb4913926659b8c7",
+        "tagline": "Connect and manage your installed Umbrel Arr apps",
+        "description": "umbrelarr is the management surface for Umbrel Arr. Install its required apps from the store first, then use the explicit setup step to detect and connect them before any managed configuration begins.",
+        "release_notes": UMBRELARR_RELEASE_NOTES,
         "developer": "Umbrel Arr",
         "website": "https://github.com/umbrel-arr/umbrelarr",
         "repo": "https://github.com/umbrel-arr/umbrelarr",
@@ -222,12 +237,13 @@ APPS = {
     "lidarr": {
         "name": "Lidarr",
         "category": "Media",
-        "version": "3.1.0.4875-umbrel.2",
+        "version": "3.1.0.4875-umbrel.3",
         "port": 30993,
         "internal_port": 8686,
         "image": "lscr.io/linuxserver/lidarr:latest@sha256:ba7d43fd5d7de790c38c2dc8f2b2b54c1ac00a452784891c37385a43a039907a",
         "tagline": "Music manager for the Arr stack",
         "description": "Manages music in Umbrel or linked network storage. umbrelarr configures the music root, both download clients, and Prowlarr synchronization.",
+        "release_notes": API_HANDOFF_RELEASE_NOTES,
         "developer": "Lidarr",
         "website": "https://lidarr.audio",
         "repo": "https://github.com/Lidarr/Lidarr",
@@ -239,7 +255,8 @@ APPS = {
 }
 
 SERVICE_SLUGS = [slug for slug in APPS if slug != "umbrelarr"]
-STORAGE_SLUGS = {"qbittorrent", "sabnzbd", "sonarr", "sonarr-4k", "radarr", "radarr-4k", "bazarr", "umbrelarr", "lidarr"}
+STORAGE_SLUGS = {"qbittorrent", "sabnzbd", "sonarr", "sonarr-4k", "radarr", "radarr-4k", "bazarr", "lidarr"}
+CONFIG_SLUGS = ("prowlarr", "sabnzbd", "sonarr", "sonarr-4k", "radarr", "radarr-4k", "bazarr", "overseerr", "lidarr")
 
 
 def app_id(slug):
@@ -278,7 +295,7 @@ def manifest(slug, app):
             f"port: {app['port']}",
             "gallery: []",
             'path: ""',
-            "deterministicPassword: false",
+            f"deterministicPassword: {'true' if slug == 'qbittorrent' else 'false'}",
             "torOnly: false",
             "submitter: Umbrel Arr",
             'submission: ""',
@@ -376,31 +393,35 @@ def setup_compose(app):
     env_lines = [
         "      TZ: ${TZ:-Etc/UTC}",
         "      DEVICE_DOMAIN_NAME: ${DEVICE_DOMAIN_NAME:-umbrel.local}",
-        "      STATE_DIR: /data",
+        "      UMBREL_ARR_MANAGED_CONFIG_DIR: /managed-config",
         "      RECONCILE_INTERVAL: \"300\"",
     ]
     for slug in SERVICE_SLUGS:
         var = slug.upper().replace("-", "_")
         internal = APPS[slug]["internal_port"]
         env_lines.append(f"      UMBREL_ARR_{var}_URL: ${{UMBREL_ARR_{var}_URL:-http://{app_id(slug)}_server_1:{internal}}}")
-        if slug in {"prowlarr", "sabnzbd", "sonarr", "sonarr-4k", "radarr", "radarr-4k", "bazarr", "overseerr", "lidarr"}:
-            env_lines.append(f"      UMBREL_ARR_{var}_API_KEY: ${{UMBREL_ARR_{var}_API_KEY:-}}")
     env_lines.extend(
         [
+            "      UMBREL_ARR_QBITTORRENT_USERNAME: ${UMBREL_ARR_QBITTORRENT_USERNAME:-admin}",
+            "      UMBREL_ARR_QBITTORRENT_PASSWORD: ${UMBREL_ARR_QBITTORRENT_PASSWORD:-}",
             "      UMBREL_ARR_PRIVADO_SOCKS_HOST: ${UMBREL_ARR_PRIVADO_SOCKS_HOST:-umbrel-arr-privado-vpn_server_1}",
             "      UMBREL_ARR_PRIVADO_SOCKS_PORT: ${UMBREL_ARR_PRIVADO_SOCKS_PORT:-1080}",
         ]
+    )
+    config_mounts = "\n".join(
+        f"    - ${{UMBREL_ARR_{slug.upper().replace('-', '_')}_CONFIG_DIR}}:/managed-config/{slug}:ro"
+        for slug in CONFIG_SLUGS
     )
     block = (
         f"server:\n"
         f"  image: {app['image']}\n"
         "  restart: on-failure\n"
+        "  read_only: true\n"
         "  environment:\n"
         + "\n".join(f"    {line.strip()}" for line in env_lines)
         + "\n  volumes:\n"
-        "    - ${APP_DATA_DIR}:/data\n"
-        "    - ${UMBREL_ROOT}/data/storage/downloads:/downloads\n"
-        "    - ${UMBREL_ROOT}/data/storage/network:/network:rslave\n"
+        + config_mounts
+        + "\n"
     )
     return service_compose("umbrelarr", 8080, block)
 
@@ -487,95 +508,27 @@ def compose(slug, app):
     raise ValueError(kind)
 
 
-def random_key_exports(slug, extra=""):
-    var = slug.upper().replace("-", "_")
-    lines = [
-        'key_file="${EXPORTS_APP_DATA_DIR}/.api-key"',
-        'if [ ! -s "$key_file" ]; then',
-        '  old_umask="$(umask)"',
-        "  umask 077",
-        '  mkdir -p "$EXPORTS_APP_DATA_DIR"',
-        '  openssl rand -hex 16 > "$key_file"',
-        '  umask "$old_umask"',
-        "fi",
-        f'export UMBREL_ARR_{var}_API_KEY="$(cat "$key_file")"',
-        f'export UMBREL_ARR_{var}_URL="http://{app_id(slug)}_server_1:{APPS[slug]["internal_port"]}"',
-    ]
-    if extra:
-        lines.extend(extra.splitlines())
-    lines.append("unset key_file old_umask")
-    return "\n".join(lines) + "\n"
-
-
 def exports(slug, app):
     var = slug.upper().replace("-", "_")
     url = f"http://{app_id(slug)}_server_1:{app['internal_port']}"
-    if app["kind"] == "servarr":
-        extra = dedent(
-            f"""\
-            config_file="${{EXPORTS_APP_DATA_DIR}}/config/config.xml"
-            if [ ! -s "$config_file" ]; then
-              mkdir -p "$(dirname "$config_file")"
-              printf '<Config>\\n  <AuthenticationMethod>External</AuthenticationMethod>\\n  <AuthenticationRequired>DisabledForLocalAddresses</AuthenticationRequired>\\n  <ApiKey>%s</ApiKey>\\n</Config>\\n' "$UMBREL_ARR_{var}_API_KEY" > "$config_file"
-            fi
-            """
-        ).strip()
-        return random_key_exports(slug, extra)
-    if slug == "sabnzbd":
-        extra = dedent(
-            """\
-            config_file="${EXPORTS_APP_DATA_DIR}/config/sabnzbd.ini"
-            if [ ! -s "$config_file" ]; then
-              mkdir -p "$(dirname "$config_file")"
-              printf '__version__ = 19\\n__encoding__ = utf-8\\n[misc]\\napi_key = %s\\nhost_whitelist = umbrel-arr-sabnzbd_server_1\\ncomplete_dir = /downloads/complete\\ndownload_dir = /downloads/incomplete\\nusername =\\npassword =\\n' "$UMBREL_ARR_SABNZBD_API_KEY" > "$config_file"
-            fi
-            """
-        ).strip()
-        return random_key_exports(slug, extra)
+    lines = [f'export UMBREL_ARR_{var}_URL="{url}"']
+    if slug in CONFIG_SLUGS:
+        lines.append(f'export UMBREL_ARR_{var}_CONFIG_DIR="${{EXPORTS_APP_DATA_DIR}}/config"')
     if slug == "qbittorrent":
-        return dedent(
-            f"""\
-            export UMBREL_ARR_QBITTORRENT_URL="{url}"
-            config_file="${{EXPORTS_APP_DATA_DIR}}/config/qBittorrent/qBittorrent.conf"
-            if [ ! -s "$config_file" ]; then
-              mkdir -p "$(dirname "$config_file")"
-              printf '%s\\n' '[Preferences]' 'WebUI\\HostHeaderValidation=false' 'WebUI\\ServerDomains=*' 'WebUI\\SecureCookie=false' 'WebUI\\AuthSubnetWhitelistEnabled=true' 'WebUI\\AuthSubnetWhitelist=0.0.0.0/0' 'Downloads\\SavePath=/downloads/complete' 'Downloads\\TempPath=/downloads/incomplete' 'Downloads\\TempPathEnabled=true' > "$config_file"
-            fi
-            unset config_file
-            """
+        lines.extend(
+            [
+                'export UMBREL_ARR_QBITTORRENT_PASSWORD="${APP_PASSWORD:-}"',
+            ]
         )
-    if slug == "bazarr":
-        extra = dedent(
-            """\
-            config_file="${EXPORTS_APP_DATA_DIR}/config/config/config.yaml"
-            if [ ! -s "$config_file" ]; then
-              mkdir -p "$(dirname "$config_file")"
-              printf 'auth:\\n  apikey: %s\\n' "$UMBREL_ARR_BAZARR_API_KEY" > "$config_file"
-            fi
-            """
-        ).strip()
-        return random_key_exports(slug, extra)
-    if slug == "overseerr":
-        extra = dedent(
-            """\
-            settings_file="${EXPORTS_APP_DATA_DIR}/config/settings.json"
-            if [ ! -s "$settings_file" ]; then
-              mkdir -p "$(dirname "$settings_file")"
-              printf '{"main":{"apiKey":"%s"}}\\n' "$UMBREL_ARR_OVERSEERR_API_KEY" > "$settings_file"
-            fi
-            """
-        ).strip()
-        return random_key_exports(slug, extra)
     if slug == "privado-vpn":
-        return dedent(
-            f"""\
-            export UMBREL_ARR_PRIVADO_VPN_URL="{url}"
-            export UMBREL_ARR_PRIVADO_SOCKS_HOST="{app_id(slug)}_server_1"
-            export UMBREL_ARR_PRIVADO_SOCKS_PORT="1080"
-            export UMBREL_ARR_PRIVADO_SOCKS_URL="socks5://{app_id(slug)}_server_1:1080"
-            """
+        lines.extend(
+            [
+                f'export UMBREL_ARR_PRIVADO_SOCKS_HOST="{app_id(slug)}_server_1"',
+                'export UMBREL_ARR_PRIVADO_SOCKS_PORT="1080"',
+                f'export UMBREL_ARR_PRIVADO_SOCKS_URL="socks5://{app_id(slug)}_server_1:1080"',
+            ]
         )
-    return f'export UMBREL_ARR_{var}_URL="{url}"\n'
+    return "\n".join(lines) + "\n"
 
 
 def expected_files():

@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-qbittorrent
 category: Media
 name: qBittorrent
-version: "5.2.4-umbrel.2"
+version: "5.2.4-umbrel.3"
 tagline: Torrent client managed by umbrelarr
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-qbittorrent/icon.svg
 description: >-
   Downloads torrents to shared Umbrel storage. umbrelarr applies Privado SOCKS5 routing and creates the HD, 4K, TV, movie, and music categories.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files.
 developer: qBittorrent
 website: https://www.qbittorrent.org
 dependencies: []
@@ -19,7 +19,7 @@ support: https://github.com/qbittorrent/qBittorrent/issues
 port: 30983
 gallery: []
 path: ""
-deterministicPassword: false
+deterministicPassword: true
 torOnly: false
 submitter: Umbrel Arr
 submission: ""
