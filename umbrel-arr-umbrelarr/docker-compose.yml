@@ -6,7 +6,7 @@ services:
       APP_HOST: umbrel-arr-umbrelarr_server_1
       APP_PORT: 8080
   server:
-    image: ghcr.io/umbrel-arr/umbrelarr:1.1.0@sha256:4034af0d61c4ce3c3711bf10aea3a921ec7717ff4b4ceccab6ccefcc6982eb8e
+    image: ghcr.io/umbrel-arr/umbrelarr:1.1.0@sha256:a51f4b9417717b2ec9744461b9b4980f62ce1e7f1fd744481fbb27bb03dc3f5f
     restart: on-failure
     read_only: true
     environment:
