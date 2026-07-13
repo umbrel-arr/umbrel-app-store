@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-radarr-4k
 category: Media
 name: Radarr 4K
-version: "6.1.1.10360-umbrel.2"
+version: "6.1.1.10360-umbrel.3"
 tagline: Dedicated 4K movie manager
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-radarr-4k/icon.svg
 description: >-
   Keeps a separate 2160p movie library under network storage with its own category, root, quality profiles, and request-server registration.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr.
 developer: Radarr
 website: https://radarr.video
 dependencies: []

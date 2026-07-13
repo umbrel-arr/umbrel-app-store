@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-sonarr
 category: Media
 name: Sonarr
-version: "4.0.17.2952-umbrel.2"
+version: "4.0.17.2952-umbrel.3"
 tagline: HD TV series manager
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-sonarr/icon.svg
 description: >-
   Manages the HD series library in Umbrel or linked network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr.
 developer: Sonarr
 website: https://sonarr.tv
 dependencies: []

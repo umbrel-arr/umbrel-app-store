@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-bazarr
 category: Media
 name: Bazarr
-version: "1.6.0-umbrel.2"
+version: "1.6.0-umbrel.3"
 tagline: Subtitle manager for HD Sonarr and Radarr
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-bazarr/icon.svg
 description: >-
   Manages subtitles beside the HD series and movie libraries. umbrelarr connects Sonarr and Radarr and routes provider traffic through Privado.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr.
 developer: Bazarr
 website: https://www.bazarr.media
 dependencies: []

@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-radarr
 category: Media
 name: Radarr
-version: "6.1.1.10360-umbrel.2"
+version: "6.1.1.10360-umbrel.3"
 tagline: HD movie manager
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-radarr/icon.svg
 description: >-
   Manages the HD movie library in Umbrel or linked network storage. umbrelarr configures roots, download clients, Prowlarr, and Profilarr.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr.
 developer: Radarr
 website: https://radarr.video
 dependencies: []

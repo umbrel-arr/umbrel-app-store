@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-overseerr
 category: Media
 name: Overseerr
-version: "1.35.0-umbrel.2"
+version: "1.35.0-umbrel.3"
 tagline: Media requests for HD and 4K libraries
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-overseerr/icon.svg
 description: >-
   Provides media discovery and requests. Complete Plex sign-in once; umbrelarr then registers the HD and 4K Sonarr and Radarr servers automatically.
 releaseNotes: >-
-  Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants.
+  Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr.
 developer: Overseerr
 website: https://overseerr.dev
 dependencies: []
