@@ -241,8 +241,15 @@ if [ "$needs_qbittorrent_password" = "1" ]; then
       -p "${PROJECT_PREFIX}-qbittorrent" \
       -f umbrel-arr-qbittorrent/docker-compose.yml \
       -f "$OVERRIDE" logs --no-color server 2>&1 \
-    | sed -n 's/.*temporary password is provided for this session: *//p' \
-    | tail -n 1
+    | python3 -c '
+import re, sys
+matches = re.findall(
+    r"temporary password is provided for this session:\s*([^\s\x1b]+)",
+    sys.stdin.read(),
+    re.IGNORECASE,
+)
+print(matches[-1] if matches else "")
+'
   )"
   if [ -z "$qbittorrent_temporary_password" ]; then
     printf '%s\n' "qBittorrent requires its one-time password, but the smoke harness could not find it in the startup log." >&2
