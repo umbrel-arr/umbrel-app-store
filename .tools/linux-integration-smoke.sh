@@ -64,9 +64,21 @@ services:
     networks: [stack]
 YAML
 
+# Model storage paths supplied by the user/storage owner. These are fixture
+# inputs; umbrelarr and the dependency exports remain unable to create them.
 mkdir -p \
   "${BASE}/umbrel/data/storage/downloads" \
+  "${BASE}/umbrel/data/storage/downloads/shows" \
+  "${BASE}/umbrel/data/storage/downloads/shows-4k" \
+  "${BASE}/umbrel/data/storage/downloads/movies" \
+  "${BASE}/umbrel/data/storage/downloads/movies-4k" \
+  "${BASE}/umbrel/data/storage/downloads/music" \
   "${BASE}/umbrel/data/storage/network" \
+  "${BASE}/umbrel/data/storage/network/shows" \
+  "${BASE}/umbrel/data/storage/network/shows-4k" \
+  "${BASE}/umbrel/data/storage/network/movies" \
+  "${BASE}/umbrel/data/storage/network/movies-4k" \
+  "${BASE}/umbrel/data/storage/network/music" \
   "${BASE}/apps"
 sudo chown -R 1000:1000 "${BASE}/umbrel/data/storage"
 docker network create "$STACK_NETWORK" >/dev/null
