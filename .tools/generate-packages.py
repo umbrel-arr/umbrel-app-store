@@ -224,7 +224,7 @@ APPS = {
         "internal_port": 8080,
         # Release gate: replace this last-known-good pin with the published
         # multi-architecture 1.1.0 digest before the store PR is published.
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.1.0@sha256:6c911ff114317e0cd7458caa0dbd25c0bb2076df54835834fb4913926659b8c7",
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.1.0@sha256:97c03d968364522113c78107a265dbcf8650c522a1aa98646850176a01080d76",
         "tagline": "Connect and manage your installed Umbrel Arr apps",
         "description": "umbrelarr is the management surface for Umbrel Arr. Install its required apps from the store first, then use the explicit setup step to detect and connect them before any managed configuration begins.",
         "release_notes": UMBRELARR_RELEASE_NOTES,
