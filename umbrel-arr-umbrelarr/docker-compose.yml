@@ -6,7 +6,7 @@ services:
       APP_HOST: umbrel-arr-umbrelarr_server_1
       APP_PORT: 8080
   server:
-    image: ghcr.io/umbrel-arr/umbrelarr:1.1.0@sha256:31b398dd1adccb7a9f37ff6b8751987b0a36091a48454f28d7136f5a53e5576f
+    image: ghcr.io/umbrel-arr/umbrelarr:1.2.0@sha256:e127d4df5f4e00a8bcb6ca07c456eb11f25fd8daec29fd7aff42441f7322f8b7
     restart: on-failure
     read_only: true
     environment:
@@ -31,13 +31,15 @@ services:
       UMBREL_ARR_QBITTORRENT_PASSWORD: ${UMBREL_ARR_QBITTORRENT_PASSWORD:-}
       UMBREL_ARR_PRIVADO_SOCKS_HOST: ${UMBREL_ARR_PRIVADO_SOCKS_HOST:-umbrel-arr-privado-vpn_server_1}
       UMBREL_ARR_PRIVADO_SOCKS_PORT: ${UMBREL_ARR_PRIVADO_SOCKS_PORT:-1080}
+      UMBREL_ARR_SOCKS5_HOST: ${UMBREL_ARR_SOCKS5_HOST:-}
+      UMBREL_ARR_SOCKS5_PORT: ${UMBREL_ARR_SOCKS5_PORT:-1080}
     volumes:
-      - ${UMBREL_ARR_PROWLARR_CONFIG_DIR}:/managed-config/prowlarr:ro
-      - ${UMBREL_ARR_SABNZBD_CONFIG_DIR}:/managed-config/sabnzbd:ro
-      - ${UMBREL_ARR_SONARR_CONFIG_DIR}:/managed-config/sonarr:ro
-      - ${UMBREL_ARR_SONARR_4K_CONFIG_DIR}:/managed-config/sonarr-4k:ro
-      - ${UMBREL_ARR_RADARR_CONFIG_DIR}:/managed-config/radarr:ro
-      - ${UMBREL_ARR_RADARR_4K_CONFIG_DIR}:/managed-config/radarr-4k:ro
-      - ${UMBREL_ARR_BAZARR_CONFIG_DIR}:/managed-config/bazarr:ro
-      - ${UMBREL_ARR_OVERSEERR_CONFIG_DIR}:/managed-config/overseerr:ro
-      - ${UMBREL_ARR_LIDARR_CONFIG_DIR}:/managed-config/lidarr:ro
+      - ${UMBREL_ARR_PROWLARR_CONFIG_DIR:-/dev/null}:/managed-config/prowlarr:ro
+      - ${UMBREL_ARR_SABNZBD_CONFIG_DIR:-/dev/null}:/managed-config/sabnzbd:ro
+      - ${UMBREL_ARR_SONARR_CONFIG_DIR:-/dev/null}:/managed-config/sonarr:ro
+      - ${UMBREL_ARR_SONARR_4K_CONFIG_DIR:-/dev/null}:/managed-config/sonarr-4k:ro
+      - ${UMBREL_ARR_RADARR_CONFIG_DIR:-/dev/null}:/managed-config/radarr:ro
+      - ${UMBREL_ARR_RADARR_4K_CONFIG_DIR:-/dev/null}:/managed-config/radarr-4k:ro
+      - ${UMBREL_ARR_BAZARR_CONFIG_DIR:-/dev/null}:/managed-config/bazarr:ro
+      - ${UMBREL_ARR_OVERSEERR_CONFIG_DIR:-/dev/null}:/managed-config/overseerr:ro
+      - ${UMBREL_ARR_LIDARR_CONFIG_DIR:-/dev/null}:/managed-config/lidarr:ro

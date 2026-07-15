@@ -10,9 +10,19 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        profile:
+          - core-direct
+          - tv-torrent-privado
+          - tv-torrent-generic-socks5
+          - video-usenet-direct
+          - full-privado
     steps:
       - uses: actions/checkout@v5
-      - name: Run isolated stack smoke test
+      - name: Run isolated ${{ matrix.profile }} smoke test
         env:
           UMBREL_ARR_LINUX_INTEGRATION: "1"
+          UMBREL_ARR_SMOKE_PROFILE: ${{ matrix.profile }}
         run: .tools/linux-integration-smoke.sh

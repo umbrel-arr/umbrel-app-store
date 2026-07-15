@@ -9,39 +9,34 @@ Add this community store to Umbrel:
 https://github.com/umbrel-arr/umbrel-app-store
 ```
 
-Install the required service apps first, then install **umbrelarr**. Its setup
-screen detects those user-installed apps and waits for explicit confirmation
-before the management dashboard configures VPN routing, download clients, media
-roots, Prowlarr, Bazarr, Profilarr, and Overseerr.
+Install **umbrelarr** and only the service apps you want. Its setup screen offers
+starting profiles and individual module switches, detects the selected
+user-installed apps, and waits for explicit confirmation before the dashboard
+configures the settings it owns.
 
-umbrelarr does not install, start, stop, or replace those apps. Umbrel records
-all 13 as prerequisites so the management app can connect only to a complete,
-user-installed stack.
+umbrelarr does not install, start, stop, or replace service apps, and its
+manifest does not force-install the complete catalog. Prowlarr remains the
+small required control-plane anchor because setup consent and modular choices
+are stored as API-owned tags; every download, media, subtitle, request, profile,
+and VPN service is otherwise optional.
 
-### Required upgrade order for umbrelarr 1.1
+Installed apps publish their internal URL and, where necessary, their own
+read-only config-directory path through Umbrel exports. The umbrelarr package
+uses `/dev/null` for an export that is absent, so Docker cannot create a phantom
+app directory and the dashboard can report that the selected app is not
+installed. This keeps discovery read-only while every managed change still
+goes through the owning service's API.
 
-Before installing or upgrading to umbrelarr 1.1, update all credential-handoff
-packages below. Do not start the umbrelarr upgrade while an older revision is
-installed because those packages used install-time exports that wrote API keys
-and configuration files.
+### Starting profiles
 
-| Package | Required version |
-| --- | --- |
-| Prowlarr | `2.3.5.5327-umbrel.3` |
-| qBittorrent | `5.2.4-umbrel.3` |
-| SABnzbd | `5.0.4-umbrel.3` |
-| Sonarr | `4.0.17.2952-umbrel.3` |
-| Sonarr 4K | `4.0.17.2952-umbrel.3` |
-| Radarr | `6.1.1.10360-umbrel.3` |
-| Radarr 4K | `6.1.1.10360-umbrel.3` |
-| Bazarr | `1.6.0-umbrel.3` |
-| Overseerr | `1.35.0-umbrel.3` |
-| Lidarr | `3.1.0.4875-umbrel.3` |
+- Core only: Prowlarr and umbrelarr.
+- TV with torrents: Prowlarr, qBittorrent, and Sonarr.
+- TV and movies with Usenet: Prowlarr, SABnzbd, Sonarr, and Radarr.
+- Complete media stack: every supported service module.
 
-Only after all ten updates are installed should umbrelarr be updated to 1.1.
-The 1.1 package deliberately requires their new `CONFIG_DIR` exports; it does
-not guess sibling data paths, invoke an old export, or allow Docker to create a
-missing source directory.
+Profiles are shortcuts, not separate packages. Any module can be adjusted
+before detection, and VPN routing is selected independently as Privado,
+compatible external SOCKS5, or direct routing.
 
 ## Development
 
@@ -74,7 +69,7 @@ umbrelarr container does not mount either storage tree.
 ## Security
 
 Service UIs are protected by Umbrel. Each service generates and owns its API
-credentials. Dependency exports only expose service URLs, read-only config
+credentials. Installed-app exports only expose service URLs, read-only config
 directory paths, and Umbrel-provided environment values; they never create or
 modify another app's files. umbrelarr reads credentials from those config
 directories and performs managed changes through service APIs after setup is

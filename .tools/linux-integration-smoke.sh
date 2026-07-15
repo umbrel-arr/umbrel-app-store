@@ -18,7 +18,60 @@ readonly OVERRIDE="${BASE}/compose.override.yml"
 readonly PARSER_OVERRIDE="${BASE}/compose.parser.yml"
 readonly PYTHON_IMAGE="python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0"
 readonly QBITTORRENT_PASSWORD="umbrel-arr-ci-${RUN_TOKEN}"
+readonly PROFILE="${UMBREL_ARR_SMOKE_PROFILE:-full-privado}"
+
+case "$PROFILE" in
+  core-direct)
+    readonly ENABLED_SERVICES='["prowlarr"]'
+    readonly SERVICE_SLUGS="prowlarr"
+    readonly CONFIG_SLUGS="prowlarr"
+    readonly VPN_PROVIDER="direct"
+    readonly EXPECTED_APP_COUNT="1"
+    readonly NEEDS_SOCKS="0"
+    ;;
+  tv-torrent-privado)
+    readonly ENABLED_SERVICES='["prowlarr","qbittorrent","sonarr"]'
+    readonly SERVICE_SLUGS="prowlarr qbittorrent sonarr"
+    readonly CONFIG_SLUGS="prowlarr sonarr"
+    readonly VPN_PROVIDER="privado"
+    readonly EXPECTED_APP_COUNT="4"
+    readonly NEEDS_SOCKS="1"
+    ;;
+  tv-torrent-generic-socks5)
+    readonly ENABLED_SERVICES='["prowlarr","qbittorrent","sonarr"]'
+    readonly SERVICE_SLUGS="prowlarr qbittorrent sonarr"
+    readonly CONFIG_SLUGS="prowlarr sonarr"
+    readonly VPN_PROVIDER="generic-socks5"
+    readonly EXPECTED_APP_COUNT="3"
+    readonly NEEDS_SOCKS="1"
+    ;;
+  video-usenet-direct)
+    readonly ENABLED_SERVICES='["prowlarr","sabnzbd","sonarr","radarr"]'
+    readonly SERVICE_SLUGS="prowlarr sabnzbd sonarr radarr"
+    readonly CONFIG_SLUGS="prowlarr sabnzbd sonarr radarr"
+    readonly VPN_PROVIDER="direct"
+    readonly EXPECTED_APP_COUNT="4"
+    readonly NEEDS_SOCKS="0"
+    ;;
+  full-privado)
+    readonly ENABLED_SERVICES='["flaresolverr","prowlarr","qbittorrent","sabnzbd","sonarr","sonarr-4k","radarr","radarr-4k","bazarr","overseerr","profilarr","lidarr"]'
+    readonly SERVICE_SLUGS="flaresolverr prowlarr qbittorrent sabnzbd sonarr sonarr-4k radarr radarr-4k bazarr overseerr profilarr lidarr"
+    readonly CONFIG_SLUGS="prowlarr sabnzbd sonarr sonarr-4k radarr radarr-4k bazarr overseerr lidarr"
+    readonly VPN_PROVIDER="privado"
+    readonly EXPECTED_APP_COUNT="13"
+    readonly NEEDS_SOCKS="1"
+    ;;
+  *)
+    printf 'error: unknown smoke profile %s\n' "$PROFILE" >&2
+    exit 1
+    ;;
+esac
+
 export RUN_TOKEN STACK_NETWORK
+if [ "$VPN_PROVIDER" = "generic-socks5" ]; then
+  export UMBREL_ARR_SOCKS5_HOST="umbrel-arr-privado-vpn_server_1"
+  export UMBREL_ARR_SOCKS5_PORT="1080"
+fi
 
 cleanup() {
   local exit_code="$?"
@@ -83,17 +136,21 @@ mkdir -p \
 sudo chown -R 1000:1000 "${BASE}/umbrel/data/storage"
 docker network create "$STACK_NETWORK" >/dev/null
 
-docker run -d \
-  --name "${PROJECT_PREFIX}-privado-mock" \
-  --label "umbrel-arr-smoke=${RUN_TOKEN}" \
-  --network "$STACK_NETWORK" \
-  --network-alias umbrel-arr-privado-vpn_server_1 \
-  --volume "$ROOT/.tools/privado_ci_mock.py:/mock.py:ro" \
-  "$PYTHON_IMAGE" \
-  python3 -u /mock.py >/dev/null
+if [ "$NEEDS_SOCKS" = "1" ]; then
+  docker run -d \
+    --name "${PROJECT_PREFIX}-privado-mock" \
+    --label "umbrel-arr-smoke=${RUN_TOKEN}" \
+    --network "$STACK_NETWORK" \
+    --network-alias umbrel-arr-privado-vpn_server_1 \
+    --volume "$ROOT/.tools/privado_ci_mock.py:/mock.py:ro" \
+    "$PYTHON_IMAGE" \
+    python3 -u /mock.py >/dev/null
+fi
 
 cd "$ROOT"
-. umbrel-arr-privado-vpn/exports.sh
+if [ "$VPN_PROVIDER" = "privado" ]; then
+  . umbrel-arr-privado-vpn/exports.sh
+fi
 
 compose_up() {
   local server_alias="$1"
@@ -149,13 +206,11 @@ start_app() {
   compose_up "umbrel-arr-${slug}_server_1" "$app_data" "${compose[@]}"
 }
 
-for slug in \
-  flaresolverr prowlarr qbittorrent sabnzbd sonarr sonarr-4k radarr \
-  radarr-4k bazarr overseerr profilarr lidarr; do
+for slug in $SERVICE_SLUGS; do
   start_app "$slug"
 done
 
-for slug in prowlarr sabnzbd sonarr sonarr-4k radarr radarr-4k bazarr overseerr lidarr; do
+for slug in $CONFIG_SLUGS; do
   var="UMBREL_ARR_${slug^^}_CONFIG_DIR"
   var="${var//-/_}"
   config_dir="${!var:-}"
@@ -218,7 +273,9 @@ setup_exec python3 -c 'import urllib.request; urllib.request.urlopen("http://127
 
 setup_state=""
 for _attempt in $(seq 1 90); do
-  setup_state="$(setup_request POST /api/setup/detect 2>/dev/null || true)"
+  setup_state="$(setup_request POST /api/setup/detect \
+    "enabledServices=${ENABLED_SERVICES}" \
+    "vpnProvider=${VPN_PROVIDER}" 2>/dev/null || true)"
   if printf '%s' "$setup_state" | python3 -c '
 import json, sys
 data = json.load(sys.stdin)
@@ -232,17 +289,18 @@ done
 printf '%s' "$setup_state" | python3 -c '
 import json, sys
 data = json.load(sys.stdin)
+expected = int(sys.argv[1])
 assert data.get("phase") == "ready", data
 assert data.get("confirmed") is False, data
 assert data.get("canConfirm") is True, data
-assert data.get("detectedCount") == data.get("requiredCount") == 13, data
+assert data.get("detectedCount") == data.get("requiredCount") == expected, data
 assert all(app.get("reachable") for app in data.get("apps", [])), data
-'
+' "$EXPECTED_APP_COUNT"
 
 needs_qbittorrent_password="$(printf '%s' "$setup_state" | python3 -c '
 import json, sys
 apps = {app["id"]: app for app in json.load(sys.stdin).get("apps", [])}
-print("1" if apps["qbittorrent"].get("action") == "temporary_password_required" else "0")
+print("1" if apps.get("qbittorrent", {}).get("action") == "temporary_password_required" else "0")
 ')"
 qbittorrent_temporary_password=""
 if [ "$needs_qbittorrent_password" = "1" ]; then
@@ -328,7 +386,9 @@ setup_request POST /api/setup/confirm \
   "storageMode=local" \
   "rootIds={}" \
   "qbittorrentUsername=admin" \
-  "qbittorrentTemporaryPassword=${qbittorrent_temporary_password}" >/dev/null
+  "qbittorrentTemporaryPassword=${qbittorrent_temporary_password}" \
+  "enabledServices=${ENABLED_SERVICES}" \
+  "vpnProvider=${VPN_PROVIDER}" >/dev/null
 unset qbittorrent_temporary_password
 
 wait_for_reconcile() {
@@ -401,13 +461,21 @@ import json, sys
 data = json.load(sys.stdin)
 counts = data.get("counts", {})
 services = {service["id"]: service for service in data.get("services", [])}
+expected = set(json.loads(sys.argv[1])) | {"umbrelarr"}
+if sys.argv[2] == "privado":
+    expected.add("privado-vpn")
 assert data.get("lastCompletedAt"), "reconciliation never completed"
 assert not counts.get("failed"), data
-assert services["privado-vpn"]["status"] == "healthy", data
-assert services["overseerr"]["status"] == "action_required", data
-assert services["profilarr"]["status"] in {"healthy", "waiting"}, data
+assert set(services) == expected, (expected, services)
+for slug, service in services.items():
+    if slug == "overseerr":
+        assert service["status"] == "action_required", data
+    elif slug == "profilarr":
+        assert service["status"] in {"healthy", "waiting"}, data
+    else:
+        assert service["status"] == "healthy", data
 print(json.dumps(data, indent=2, sort_keys=True))
-'
+' "$ENABLED_SERVICES" "$VPN_PROVIDER"
 storage_before_restart="$(setup_request GET /api/storage)"
 
 APP_DATA_DIR="$BASE" UMBREL_ROOT="${BASE}/umbrel" \
@@ -425,9 +493,14 @@ restored_setup="$(setup_request GET /api/setup)"
 printf '%s' "$restored_setup" | python3 -c '
 import json, sys
 data = json.load(sys.stdin)
+expected = set(json.loads(sys.argv[1])) | {"umbrelarr"}
+if sys.argv[2] == "privado":
+    expected.add("privado-vpn")
 assert data.get("phase") == "confirmed", data
 assert data.get("confirmed") is True, data
-'
+assert set(data.get("enabledServices", [])) == expected, data
+assert data.get("vpnProvider") == sys.argv[2], data
+' "$ENABLED_SERVICES" "$VPN_PROVIDER"
 storage_after_restart="$(setup_request GET /api/storage)"
 python3 -c '
 import json, sys
@@ -446,14 +519,21 @@ setup_id="$(
 docker inspect "$setup_id" | python3 -c '
 import json, sys
 container = json.load(sys.stdin)[0]
+expected_real = set(sys.argv[1].split())
 assert container["HostConfig"]["ReadonlyRootfs"], container["Name"]
 mounts = container.get("Mounts", [])
 assert not any(mount["Destination"] == "/data" for mount in mounts), mounts
 configs = [mount for mount in mounts if mount["Destination"].startswith("/managed-config/")]
 assert len(configs) == 9, configs
 assert all(not mount["RW"] for mount in configs), configs
-print("Verified stateless read-only umbrelarr runtime and nine read-only config mounts.")
-'
+for mount in configs:
+    slug = mount["Destination"].removeprefix("/managed-config/")
+    if slug in expected_real:
+        assert mount["Source"] != "/dev/null", mount
+    else:
+        assert mount["Source"] == "/dev/null", mount
+print(f"Verified stateless optional mounts for profile {sys.argv[2]}.")
+' "$CONFIG_SLUGS" "$PROFILE"
 
 ids="$(docker ps -q --filter "label=umbrel-arr-smoke=${RUN_TOKEN}")"
 docker inspect $ids | python3 -c '

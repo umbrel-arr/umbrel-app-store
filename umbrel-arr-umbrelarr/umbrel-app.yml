@@ -2,29 +2,16 @@ manifestVersion: 1
 id: umbrel-arr-umbrelarr
 category: Media
 name: umbrelarr
-version: "1.1.0"
-tagline: Connect and manage your installed Umbrel Arr apps
+version: "1.2.0"
+tagline: Build and manage the Umbrel Arr stack you want
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-umbrelarr/icon.svg
 description: >-
-  umbrelarr is the management surface for Umbrel Arr. Install its required apps from the store first, then use the explicit setup step to detect and connect them before any managed configuration begins.
+  umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.
 releaseNotes: >-
-  Adds explicit setup and a stateless API-only runtime. Before installing 1.1, update Prowlarr, qBittorrent, SABnzbd, both Sonarr and Radarr packages, Bazarr, Overseerr, and Lidarr to their .3 handoff revisions.
+  Adds modular service profiles, swappable VPN routing, and optional app discovery without forcing the complete stack to be installed.
 developer: Umbrel Arr
 website: https://github.com/umbrel-arr/umbrelarr
-dependencies:
-  - umbrel-arr-privado-vpn
-  - umbrel-arr-flaresolverr
-  - umbrel-arr-prowlarr
-  - umbrel-arr-qbittorrent
-  - umbrel-arr-sabnzbd
-  - umbrel-arr-sonarr
-  - umbrel-arr-sonarr-4k
-  - umbrel-arr-radarr
-  - umbrel-arr-radarr-4k
-  - umbrel-arr-bazarr
-  - umbrel-arr-overseerr
-  - umbrel-arr-profilarr
-  - umbrel-arr-lidarr
+dependencies: []
 repo: https://github.com/umbrel-arr/umbrelarr
 support: https://github.com/umbrel-arr/umbrelarr/issues
 port: 30992

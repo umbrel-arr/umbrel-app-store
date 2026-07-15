@@ -106,7 +106,7 @@ class ExportTests(unittest.TestCase):
 
 
 class StatelessPackagingTests(unittest.TestCase):
-    def test_umbrelarr_is_read_only_and_mounts_only_dependency_configs(self):
+    def test_umbrelarr_is_read_only_and_mounts_optional_installed_configs(self):
         compose = (ROOT / "umbrel-arr-umbrelarr" / "docker-compose.yml").read_text()
         self.assertIn("read_only: true", compose)
         self.assertNotIn("STATE_DIR", compose)
@@ -117,10 +117,10 @@ class StatelessPackagingTests(unittest.TestCase):
         for slug in CONFIG_SLUGS:
             var = slug.upper().replace("-", "_")
             self.assertIn(
-                f"${{UMBREL_ARR_{var}_CONFIG_DIR}}:/managed-config/{slug}:ro",
+                f"${{UMBREL_ARR_{var}_CONFIG_DIR:-/dev/null}}:/managed-config/{slug}:ro",
                 compose,
             )
-            self.assertNotIn(f"UMBREL_ARR_{var}_CONFIG_DIR:-", compose)
+        self.assertIn("UMBREL_ARR_SOCKS5_HOST: ${UMBREL_ARR_SOCKS5_HOST:-}", compose)
 
     def test_umbrelarr_never_invokes_dependency_export_scripts(self):
         package = ROOT / "umbrel-arr-umbrelarr"
@@ -131,14 +131,15 @@ class StatelessPackagingTests(unittest.TestCase):
             self.assertNotIn("source exports.sh", content)
             self.assertNotIn(". exports.sh", content)
 
-    def test_umbrelarr_requires_all_thirteen_user_installed_apps(self):
+    def test_umbrelarr_has_no_forced_service_dependencies(self):
         manifest = (ROOT / "umbrel-arr-umbrelarr" / "umbrel-app.yml").read_text()
         dependencies = [
             line.removeprefix("  - ")
             for line in manifest.splitlines()
             if line.startswith("  - umbrel-arr-")
         ]
-        self.assertEqual(dependencies, [f"umbrel-arr-{slug}" for slug in SERVICE_SLUGS])
+        self.assertEqual(dependencies, [])
+        self.assertIn("dependencies: []", manifest)
         self.assertNotIn("permissions:", manifest)
 
     def test_qbittorrent_enables_deterministic_password(self):
@@ -167,29 +168,19 @@ class StatelessPackagingTests(unittest.TestCase):
             ).group(1)
             self.assertNotIn("opaque app icon", release_notes)
 
-    def test_umbrelarr_release_requires_all_handoff_revisions_first(self):
+    def test_umbrelarr_release_describes_modular_installation(self):
         manifest = (ROOT / "umbrel-arr-umbrelarr" / "umbrel-app.yml").read_text()
-        self.assertIn("Before installing 1.1, update Prowlarr", manifest)
-        self.assertIn("Lidarr to their .3 handoff revisions", manifest)
-        readme = (ROOT / "README.md").read_text()
-        required = {
-            "Prowlarr": "2.3.5.5327-umbrel.3",
-            "qBittorrent": "5.2.4-umbrel.3",
-            "SABnzbd": "5.0.4-umbrel.3",
-            "Sonarr": "4.0.17.2952-umbrel.3",
-            "Sonarr 4K": "4.0.17.2952-umbrel.3",
-            "Radarr": "6.1.1.10360-umbrel.3",
-            "Radarr 4K": "6.1.1.10360-umbrel.3",
-            "Bazarr": "1.6.0-umbrel.3",
-            "Overseerr": "1.35.0-umbrel.3",
-            "Lidarr": "3.1.0.4875-umbrel.3",
-        }
-        for name, version in required.items():
-            self.assertIn(f"| {name} | `{version}` |", readme)
-        self.assertIn(
-            "Only after all ten updates are installed should umbrelarr be updated to 1.1.",
-            readme,
+        compose = (ROOT / "umbrel-arr-umbrelarr" / "docker-compose.yml").read_text()
+        self.assertIn('version: "1.2.0"', manifest)
+        self.assertIn("modular service profiles", manifest)
+        self.assertIn("without forcing the complete stack", manifest)
+        self.assertRegex(
+            compose,
+            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.2\.0@sha256:[0-9a-f]{64}",
         )
+        readme = (ROOT / "README.md").read_text()
+        self.assertIn("does not force-install the complete catalog", readme)
+        self.assertIn("/dev/null", readme)
 
 
 if __name__ == "__main__":

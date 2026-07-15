@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
 ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
 ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
-UMBRELARR_RELEASE_NOTES = "Adds explicit setup and a stateless API-only runtime. Before installing 1.1, update Prowlarr, qBittorrent, SABnzbd, both Sonarr and Radarr packages, Bazarr, Overseerr, and Lidarr to their .3 handoff revisions."
+UMBRELARR_RELEASE_NOTES = "Adds modular service profiles, swappable VPN routing, and optional app discovery without forcing the complete stack to be installed."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
 
@@ -219,14 +219,14 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "port": 30992,
         "internal_port": 8080,
-        # Release gate: replace this last-known-good pin with the published
-        # multi-architecture 1.1.0 digest before the store PR is published.
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.1.0@sha256:31b398dd1adccb7a9f37ff6b8751987b0a36091a48454f28d7136f5a53e5576f",
-        "tagline": "Connect and manage your installed Umbrel Arr apps",
-        "description": "umbrelarr is the management surface for Umbrel Arr. Install its required apps from the store first, then use the explicit setup step to detect and connect them before any managed configuration begins.",
+        # Immutable multi-architecture manifest produced by the umbrelarr
+        # repository's Linux build workflow from signed main commit 430b9b3.
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.2.0@sha256:e127d4df5f4e00a8bcb6ca07c456eb11f25fd8daec29fd7aff42441f7322f8b7",
+        "tagline": "Build and manage the Umbrel Arr stack you want",
+        "description": "umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.",
         "release_notes": UMBRELARR_RELEASE_NOTES,
         "developer": "Umbrel Arr",
         "website": "https://github.com/umbrel-arr/umbrelarr",
@@ -264,7 +264,7 @@ def app_id(slug):
 
 
 def manifest(slug, app):
-    dependencies = SERVICE_SLUGS if slug == "umbrelarr" else []
+    dependencies = []
     release_lines = [f"  {app.get('release_notes', ICON_RELEASE_NOTES)}"]
     lines = [
         "manifestVersion: 1",
@@ -406,10 +406,12 @@ def setup_compose(app):
             "      UMBREL_ARR_QBITTORRENT_PASSWORD: ${UMBREL_ARR_QBITTORRENT_PASSWORD:-}",
             "      UMBREL_ARR_PRIVADO_SOCKS_HOST: ${UMBREL_ARR_PRIVADO_SOCKS_HOST:-umbrel-arr-privado-vpn_server_1}",
             "      UMBREL_ARR_PRIVADO_SOCKS_PORT: ${UMBREL_ARR_PRIVADO_SOCKS_PORT:-1080}",
+            "      UMBREL_ARR_SOCKS5_HOST: ${UMBREL_ARR_SOCKS5_HOST:-}",
+            "      UMBREL_ARR_SOCKS5_PORT: ${UMBREL_ARR_SOCKS5_PORT:-1080}",
         ]
     )
     config_mounts = "\n".join(
-        f"    - ${{UMBREL_ARR_{slug.upper().replace('-', '_')}_CONFIG_DIR}}:/managed-config/{slug}:ro"
+        f"    - ${{UMBREL_ARR_{slug.upper().replace('-', '_')}_CONFIG_DIR:-/dev/null}}:/managed-config/{slug}:ro"
         for slug in CONFIG_SLUGS
     )
     block = (
