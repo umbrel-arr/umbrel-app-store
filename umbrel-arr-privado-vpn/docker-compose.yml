@@ -6,7 +6,7 @@ services:
       APP_HOST: umbrel-arr-privado-vpn_server_1
       APP_PORT: 8080
   server:
-    image: ghcr.io/umbrel-arr/privado-proxy:1.2.4@sha256:4ae28b669de7c95ecf5bb9e849e4f2f8b5e55b710027550b0504de2e3bbf7d12
+    image: ghcr.io/umbrel-arr/privado-proxy:1.2.5@sha256:fd4246bc4c3b7a71d70f7ca78d76b9b2d9a044e248288d19ef566cec46d5db65
     restart: on-failure
     cap_add: [NET_ADMIN]
     sysctls:

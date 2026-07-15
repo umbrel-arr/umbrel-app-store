@@ -13,11 +13,11 @@ class PrivadoProcessModelTests(unittest.TestCase):
     def test_package_pins_fixed_multiarch_image(self):
         manifest = (ROOT / "umbrel-arr-privado-vpn" / "umbrel-app.yml").read_text()
         compose = (ROOT / "umbrel-arr-privado-vpn" / "docker-compose.yml").read_text()
-        self.assertIn('version: "1.2.5"', manifest)
-        self.assertIn("removing nested supervisor calls", manifest)
+        self.assertIn('version: "1.2.6"', manifest)
+        self.assertIn("certificate authority bundle", manifest)
         self.assertRegex(
             compose,
-            r"image: ghcr\.io/umbrel-arr/privado-proxy:1\.2\.4@sha256:[0-9a-f]{64}",
+            r"image: ghcr\.io/umbrel-arr/privado-proxy:1\.2\.5@sha256:[0-9a-f]{64}",
         )
 
     def test_supervisor_owns_the_dashboard_without_nested_rpc(self):

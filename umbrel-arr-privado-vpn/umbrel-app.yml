@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-privado-vpn
 category: Networking
 name: Privado VPN
-version: "1.2.5"
+version: "1.2.6"
 tagline: Private SOCKS5 gateway for the media stack
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-privado-vpn/icon.svg
 description: >-
   Provides the WireGuard tunnel and SOCKS5 proxy used by Umbrel Arr. Enter your Privado login once in umbrelarr; a healthy server is selected automatically.
 releaseNotes: >-
-  Fixes saved-login startup by removing nested supervisor calls and starts the SOCKS5 proxy only after WireGuard is healthy.
+  Restores secure Privado API access by installing the system certificate authority bundle required to verify HTTPS endpoints.
 developer: Umbrel Arr
 website: https://github.com/umbrel-arr/umbrel-app-store
 dependencies: []
