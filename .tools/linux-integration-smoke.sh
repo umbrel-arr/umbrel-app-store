@@ -132,7 +132,7 @@ mkdir -p \
   "${BASE}/umbrel/data/storage/network/movies" \
   "${BASE}/umbrel/data/storage/network/movies-4k" \
   "${BASE}/umbrel/data/storage/network/music" \
-  "${BASE}/apps"
+  "${BASE}/app-data"
 sudo chown -R 1000:1000 "${BASE}/umbrel/data/storage"
 docker network create "$STACK_NETWORK" >/dev/null
 
@@ -174,18 +174,17 @@ compose_up() {
 
 start_app() {
   local slug="$1"
-  local app_data="${BASE}/apps/${slug}"
+  local app_data="${BASE}/app-data/umbrel-arr-${slug}"
   local before_export after_export
   mkdir -p "$app_data"
   if [ -f "umbrel-arr-${slug}/exports.sh" ]; then
     before_export="$(find "$app_data" -mindepth 1 -print | sort)"
-    if [ "$slug" = "qbittorrent" ]; then
+    (
       APP_PASSWORD="$QBITTORRENT_PASSWORD" \
+        EXPORTS_APP_DIR="$app_data" \
         EXPORTS_APP_DATA_DIR="${app_data}/data" \
         . "umbrel-arr-${slug}/exports.sh"
-    else
-      EXPORTS_APP_DATA_DIR="${app_data}/data" . "umbrel-arr-${slug}/exports.sh"
-    fi
+    )
     after_export="$(find "$app_data" -mindepth 1 -print | sort)"
     if [ "$before_export" != "$after_export" ]; then
       printf 'Dependency export for %s modified app data.\n' "$slug" >&2
@@ -210,6 +209,25 @@ for slug in $SERVICE_SLUGS; do
   start_app "$slug"
 done
 
+readonly SETUP_APP_DIR="${BASE}/app-data/umbrel-arr-umbrelarr"
+mkdir -p "$SETUP_APP_DIR"
+before_setup_export="$(find "${BASE}/app-data" -mindepth 1 -print | sort)"
+derive_entropy() {
+  if [ "$1" != "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD" ]; then
+    printf 'Unexpected entropy label: %s\n' "$1" >&2
+    return 1
+  fi
+  printf '%s' "$QBITTORRENT_PASSWORD"
+}
+EXPORTS_APP_DIR="$SETUP_APP_DIR" \
+  EXPORTS_APP_DATA_DIR="${SETUP_APP_DIR}/data" \
+  . umbrel-arr-umbrelarr/exports.sh
+after_setup_export="$(find "${BASE}/app-data" -mindepth 1 -print | sort)"
+if [ "$before_setup_export" != "$after_setup_export" ]; then
+  printf '%s\n' "umbrelarr export modified app data." >&2
+  exit 1
+fi
+
 for slug in $CONFIG_SLUGS; do
   var="UMBREL_ARR_${slug^^}_CONFIG_DIR"
   var="${var//-/_}"
@@ -220,14 +238,14 @@ for slug in $CONFIG_SLUGS; do
   fi
 done
 
-compose_up umbrel-arr-umbrelarr_server_1 "$BASE" \
+compose_up umbrel-arr-umbrelarr_server_1 "$SETUP_APP_DIR" \
   docker compose \
   -p "${PROJECT_PREFIX}-setup" \
   -f umbrel-arr-umbrelarr/docker-compose.yml \
   -f "$OVERRIDE"
 
 setup_exec() {
-  APP_DATA_DIR="$BASE" \
+  APP_DATA_DIR="$SETUP_APP_DIR" \
   UMBREL_ROOT="${BASE}/umbrel" \
     docker compose \
     -p "${PROJECT_PREFIX}-setup" \
@@ -305,7 +323,7 @@ print("1" if apps.get("qbittorrent", {}).get("action") == "temporary_password_re
 qbittorrent_temporary_password=""
 if [ "$needs_qbittorrent_password" = "1" ]; then
   qbittorrent_temporary_password="$(
-    APP_DATA_DIR="${BASE}/apps/qbittorrent" \
+    APP_DATA_DIR="${BASE}/app-data/umbrel-arr-qbittorrent" \
     UMBREL_ROOT="${BASE}/umbrel" \
       docker compose \
       -p "${PROJECT_PREFIX}-qbittorrent" \
@@ -478,7 +496,7 @@ print(json.dumps(data, indent=2, sort_keys=True))
 ' "$ENABLED_SERVICES" "$VPN_PROVIDER"
 storage_before_restart="$(setup_request GET /api/storage)"
 
-APP_DATA_DIR="$BASE" UMBREL_ROOT="${BASE}/umbrel" \
+APP_DATA_DIR="$SETUP_APP_DIR" UMBREL_ROOT="${BASE}/umbrel" \
   docker compose \
   -p "${PROJECT_PREFIX}-setup" \
   -f umbrel-arr-umbrelarr/docker-compose.yml \
@@ -510,7 +528,7 @@ for key in ("mode", "roots", "rootIds", "actionRequired"):
 ' "$storage_before_restart" "$storage_after_restart"
 
 setup_id="$(
-  APP_DATA_DIR="$BASE" UMBREL_ROOT="${BASE}/umbrel" \
+  APP_DATA_DIR="$SETUP_APP_DIR" UMBREL_ROOT="${BASE}/umbrel" \
     docker compose \
     -p "${PROJECT_PREFIX}-setup" \
     -f umbrel-arr-umbrelarr/docker-compose.yml \

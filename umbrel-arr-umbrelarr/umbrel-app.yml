@@ -2,16 +2,17 @@ manifestVersion: 1
 id: umbrel-arr-umbrelarr
 category: Media
 name: umbrelarr
-version: "1.2.0"
+version: "1.2.1"
 tagline: Build and manage the Umbrel Arr stack you want
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-umbrelarr/icon.svg
 description: >-
   umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.
 releaseNotes: >-
-  Adds modular service profiles, swappable VPN routing, and optional app discovery without forcing the complete stack to be installed.
+  Restores read-only credential discovery for installed optional modules while keeping Prowlarr as the only required core dependency.
 developer: Umbrel Arr
 website: https://github.com/umbrel-arr/umbrelarr
-dependencies: []
+dependencies:
+  - umbrel-arr-prowlarr
 repo: https://github.com/umbrel-arr/umbrelarr
 support: https://github.com/umbrel-arr/umbrelarr/issues
 port: 30992

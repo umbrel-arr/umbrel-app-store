@@ -13,6 +13,40 @@ EXPORT_MUTATION_RE = re.compile(
     re.MULTILINE,
 )
 EXPORT_LINE_RE = re.compile(r'^export UMBREL_ARR_[A-Z0-9_]+="[^`]*"$')
+MANAGER_CONFIG_SLUGS = (
+    "prowlarr",
+    "sabnzbd",
+    "sonarr",
+    "sonarr-4k",
+    "radarr",
+    "radarr-4k",
+    "bazarr",
+    "overseerr",
+    "lidarr",
+)
+
+
+def manager_export_lines():
+    lines = ['umbrel_arr_apps_root="${EXPORTS_APP_DIR%/*}"']
+    for slug in MANAGER_CONFIG_SLUGS:
+        variable = slug.upper().replace("-", "_")
+        path = f"${{umbrel_arr_apps_root}}/umbrel-arr-{slug}/data/config"
+        lines.extend(
+            [
+                f'if [ -d "{path}" ]; then',
+                f'  export UMBREL_ARR_{variable}_CONFIG_DIR="{path}"',
+                "fi",
+            ]
+        )
+    lines.extend(
+        [
+            'if [ -d "${umbrel_arr_apps_root}/umbrel-arr-qbittorrent" ]; then',
+            '  export UMBREL_ARR_QBITTORRENT_PASSWORD="$(derive_entropy "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD")"',
+            "fi",
+            "unset umbrel_arr_apps_root",
+        ]
+    )
+    return lines
 
 
 def fail(message):
@@ -88,9 +122,13 @@ def main(root):
             exports_text = exports.read_text()
             if EXPORT_MUTATION_RE.search(exports_text):
                 fail(f"{directory.name} exports.sh must not create or modify files")
-            for line in exports_text.splitlines():
-                if not EXPORT_LINE_RE.fullmatch(line) or "$(" in line:
-                    fail(f"{directory.name} exports.sh may only export declarative handoff values")
+            if directory.name == "umbrel-arr-umbrelarr":
+                if exports_text.splitlines() != manager_export_lines():
+                    fail("umbrel-arr-umbrelarr exports.sh contains unexpected discovery logic")
+            else:
+                for line in exports_text.splitlines():
+                    if not EXPORT_LINE_RE.fullmatch(line) or "$(" in line:
+                        fail(f"{directory.name} exports.sh may only export declarative handoff values")
         count += 1
 
     if count != 14:

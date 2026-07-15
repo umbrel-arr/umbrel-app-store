@@ -14,18 +14,18 @@ starting profiles and individual module switches, detects the selected
 user-installed apps, and waits for explicit confirmation before the dashboard
 configures the settings it owns.
 
-umbrelarr does not install, start, stop, or replace service apps, and its
-manifest does not force-install the complete catalog. Prowlarr remains the
-small required control-plane anchor because setup consent and modular choices
-are stored as API-owned tags; every download, media, subtitle, request, profile,
-and VPN service is otherwise optional.
+umbrelarr does not install, start, stop, or replace service apps. Its manifest
+requires only Prowlarr, the small control-plane anchor where setup consent and
+modular choices are stored as API-owned tags. Download, media, subtitle,
+request, profile, and VPN services are never forced as dependencies.
 
-Installed apps publish their internal URL and, where necessary, their own
-read-only config-directory path through Umbrel exports. The umbrelarr package
-uses `/dev/null` for an export that is absent, so Docker cannot create a phantom
-app directory and the dashboard can report that the selected app is not
-installed. This keeps discovery read-only while every managed change still
-goes through the owning service's API.
+The umbrelarr lifecycle export checks the standard Umbrel app-data locations
+for optional apps and publishes only config directories that already exist.
+The package uses `/dev/null` for an absent path, so Docker cannot create a
+phantom app directory and the dashboard can report that the selected app is
+not installed. This keeps discovery read-only while every managed change still
+goes through the owning service's API. Restart umbrelarr once after installing
+a new optional module so Umbrel can refresh these read-only mounts.
 
 ### Starting profiles
 
@@ -69,11 +69,11 @@ umbrelarr container does not mount either storage tree.
 ## Security
 
 Service UIs are protected by Umbrel. Each service generates and owns its API
-credentials. Installed-app exports only expose service URLs, read-only config
-directory paths, and Umbrel-provided environment values; they never create or
-modify another app's files. umbrelarr reads credentials from those config
-directories and performs managed changes through service APIs after setup is
-confirmed.
+credentials. The manager's lifecycle export exposes only existing read-only
+config directory paths and Umbrel-derived qBittorrent credentials; it never
+creates or modifies another app's files. umbrelarr reads credentials from those
+config directories and performs managed changes through service APIs after
+setup is confirmed.
 
 The umbrelarr runtime is stateless, has a read-only root filesystem, and has no
 persistent data or shared-storage mount. qBittorrent uses Umbrel's deterministic

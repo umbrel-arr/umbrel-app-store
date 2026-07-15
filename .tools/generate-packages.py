@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
 ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
 ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
-UMBRELARR_RELEASE_NOTES = "Adds modular service profiles, swappable VPN routing, and optional app discovery without forcing the complete stack to be installed."
+UMBRELARR_RELEASE_NOTES = "Restores read-only credential discovery for installed optional modules while keeping Prowlarr as the only required core dependency."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
 
@@ -219,12 +219,12 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "port": 30992,
         "internal_port": 8080,
         # Immutable multi-architecture manifest produced by the umbrelarr
-        # repository's Linux build workflow from signed main commit 430b9b3.
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.2.0@sha256:e127d4df5f4e00a8bcb6ca07c456eb11f25fd8daec29fd7aff42441f7322f8b7",
+        # repository's Linux build workflow from signed main commit e6cc886.
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.2.1@sha256:0964ca7b360f9e956a44bb3961debed3b3511022010d1433b5ff327c443b9adb",
         "tagline": "Build and manage the Umbrel Arr stack you want",
         "description": "umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.",
         "release_notes": UMBRELARR_RELEASE_NOTES,
@@ -264,7 +264,7 @@ def app_id(slug):
 
 
 def manifest(slug, app):
-    dependencies = []
+    dependencies = ["prowlarr"] if slug == "umbrelarr" else []
     release_lines = [f"  {app.get('release_notes', ICON_RELEASE_NOTES)}"]
     lines = [
         "manifestVersion: 1",
@@ -511,6 +511,29 @@ def compose(slug, app):
 
 
 def exports(slug, app):
+    if slug == "umbrelarr":
+        lines = ['umbrel_arr_apps_root="${EXPORTS_APP_DIR%/*}"']
+        for config_slug in CONFIG_SLUGS:
+            var = config_slug.upper().replace("-", "_")
+            path = f'${{umbrel_arr_apps_root}}/{app_id(config_slug)}/data/config'
+            lines.extend(
+                [
+                    f'if [ -d "{path}" ]; then',
+                    f'  export UMBREL_ARR_{var}_CONFIG_DIR="{path}"',
+                    "fi",
+                ]
+            )
+        qbittorrent_dir = f'${{umbrel_arr_apps_root}}/{app_id("qbittorrent")}'
+        lines.extend(
+            [
+                f'if [ -d "{qbittorrent_dir}" ]; then',
+                '  export UMBREL_ARR_QBITTORRENT_PASSWORD="$(derive_entropy "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD")"',
+                "fi",
+                "unset umbrel_arr_apps_root",
+            ]
+        )
+        return "\n".join(lines) + "\n"
+
     var = slug.upper().replace("-", "_")
     url = f"http://{app_id(slug)}_server_1:{app['internal_port']}"
     lines = [f'export UMBREL_ARR_{var}_URL="{url}"']
@@ -539,8 +562,7 @@ def expected_files():
         directory = ROOT / app_id(slug)
         result[directory / "umbrel-app.yml"] = manifest(slug, app)
         result[directory / "docker-compose.yml"] = compose(slug, app)
-        if slug != "umbrelarr":
-            result[directory / "exports.sh"] = exports(slug, app)
+        result[directory / "exports.sh"] = exports(slug, app)
         icon = ROOT / ".assets" / "icons" / f"{slug}.svg"
         result[directory / "icon.svg"] = icon.read_bytes()
     return result

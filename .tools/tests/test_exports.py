@@ -51,6 +51,24 @@ class ExportTests(unittest.TestCase):
             check=True,
         ).stdout
 
+    def run_umbrelarr_export(self, directory, *, derived_password="derived-password"):
+        script = ROOT / "umbrel-arr-umbrelarr" / "exports.sh"
+        command = (
+            f'derive_entropy() {{ printf %s "{derived_password}"; }}; '
+            f'. "{script}"; env | sort'
+        )
+        return subprocess.run(
+            ["sh", "-c", command],
+            env={
+                **os.environ,
+                "EXPORTS_APP_DIR": str(directory),
+                "EXPORTS_APP_DATA_DIR": str(directory / "data"),
+            },
+            text=True,
+            capture_output=True,
+            check=True,
+        ).stdout
+
     def test_exports_are_read_only_for_every_dependency(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -104,6 +122,40 @@ class ExportTests(unittest.TestCase):
                 self.assertRegex(line, r'^export UMBREL_ARR_[A-Z0-9_]+="[^`]*"$')
                 self.assertNotIn("$(", line)
 
+    def test_umbrelarr_discovers_only_existing_optional_config_directories(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            app_root = Path(temporary) / "app-data"
+            manager = app_root / "umbrel-arr-umbrelarr"
+            selected = ("prowlarr", "sonarr", "radarr-4k")
+            for slug in selected:
+                (app_root / f"umbrel-arr-{slug}" / "data" / "config").mkdir(parents=True)
+            before = sorted(path.relative_to(app_root) for path in app_root.rglob("*"))
+
+            output = self.run_umbrelarr_export(manager)
+
+            after = sorted(path.relative_to(app_root) for path in app_root.rglob("*"))
+            self.assertEqual(after, before)
+            for slug in selected:
+                var = slug.upper().replace("-", "_")
+                expected = app_root / f"umbrel-arr-{slug}" / "data" / "config"
+                self.assertIn(f"UMBREL_ARR_{var}_CONFIG_DIR={expected}", output)
+            self.assertNotIn("UMBREL_ARR_SABNZBD_CONFIG_DIR=", output)
+
+    def test_umbrelarr_derives_qbittorrent_password_only_when_installed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            app_root = Path(temporary) / "app-data"
+            manager = app_root / "umbrel-arr-umbrelarr"
+            without_qbittorrent = self.run_umbrelarr_export(manager)
+            (app_root / "umbrel-arr-qbittorrent").mkdir(parents=True)
+            with_qbittorrent = self.run_umbrelarr_export(
+                manager, derived_password="fixture-qbittorrent-password"
+            )
+        self.assertNotIn("UMBREL_ARR_QBITTORRENT_PASSWORD=", without_qbittorrent)
+        self.assertIn(
+            "UMBREL_ARR_QBITTORRENT_PASSWORD=fixture-qbittorrent-password",
+            with_qbittorrent,
+        )
+
 
 class StatelessPackagingTests(unittest.TestCase):
     def test_umbrelarr_is_read_only_and_mounts_optional_installed_configs(self):
@@ -122,24 +174,29 @@ class StatelessPackagingTests(unittest.TestCase):
             )
         self.assertIn("UMBREL_ARR_SOCKS5_HOST: ${UMBREL_ARR_SOCKS5_HOST:-}", compose)
 
-    def test_umbrelarr_never_invokes_dependency_export_scripts(self):
+    def test_umbrelarr_uses_its_own_read_only_discovery_export(self):
         package = ROOT / "umbrel-arr-umbrelarr"
-        self.assertFalse((package / "exports.sh").exists())
+        export = package / "exports.sh"
+        self.assertTrue(export.exists())
+        content = export.read_text()
+        self.assertIn('umbrel_arr_apps_root="${EXPORTS_APP_DIR%/*}"', content)
+        self.assertNotIn("mkdir", content)
+        self.assertNotIn("touch", content)
         for path in (package / "docker-compose.yml", ROOT / ".tools" / "generate-packages.py"):
             content = path.read_text()
             self.assertNotIn("/exports.sh", content)
             self.assertNotIn("source exports.sh", content)
             self.assertNotIn(". exports.sh", content)
 
-    def test_umbrelarr_has_no_forced_service_dependencies(self):
+    def test_umbrelarr_requires_only_the_prowlarr_core_dependency(self):
         manifest = (ROOT / "umbrel-arr-umbrelarr" / "umbrel-app.yml").read_text()
         dependencies = [
             line.removeprefix("  - ")
             for line in manifest.splitlines()
             if line.startswith("  - umbrel-arr-")
         ]
-        self.assertEqual(dependencies, [])
-        self.assertIn("dependencies: []", manifest)
+        self.assertEqual(dependencies, ["umbrel-arr-prowlarr"])
+        self.assertNotIn("dependencies: []", manifest)
         self.assertNotIn("permissions:", manifest)
 
     def test_qbittorrent_enables_deterministic_password(self):
@@ -171,15 +228,15 @@ class StatelessPackagingTests(unittest.TestCase):
     def test_umbrelarr_release_describes_modular_installation(self):
         manifest = (ROOT / "umbrel-arr-umbrelarr" / "umbrel-app.yml").read_text()
         compose = (ROOT / "umbrel-arr-umbrelarr" / "docker-compose.yml").read_text()
-        self.assertIn('version: "1.2.0"', manifest)
-        self.assertIn("modular service profiles", manifest)
-        self.assertIn("without forcing the complete stack", manifest)
+        self.assertIn('version: "1.2.1"', manifest)
+        self.assertIn("installed optional modules", manifest)
+        self.assertIn("only required core dependency", manifest)
         self.assertRegex(
             compose,
-            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.2\.0@sha256:[0-9a-f]{64}",
+            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.2\.1@sha256:[0-9a-f]{64}",
         )
         readme = (ROOT / "README.md").read_text()
-        self.assertIn("does not force-install the complete catalog", readme)
+        self.assertIn("never forced as dependencies", readme)
         self.assertIn("/dev/null", readme)
 
 
