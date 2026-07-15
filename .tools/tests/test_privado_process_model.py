@@ -6,6 +6,10 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class PrivadoProcessModelTests(unittest.TestCase):
+    def test_image_installs_tls_certificate_authorities(self):
+        dockerfile = (ROOT / ".src" / "privado-proxy" / "Dockerfile").read_text()
+        self.assertRegex(dockerfile, r"apt-get install[^\n]*\\\n(?:.*\\\n)*?\s+ca-certificates\b")
+
     def test_package_pins_fixed_multiarch_image(self):
         manifest = (ROOT / "umbrel-arr-privado-vpn" / "umbrel-app.yml").read_text()
         compose = (ROOT / "umbrel-arr-privado-vpn" / "docker-compose.yml").read_text()

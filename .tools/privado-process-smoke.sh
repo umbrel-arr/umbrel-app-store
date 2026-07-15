@@ -45,6 +45,8 @@ docker run -d \
   --env SOCK_PORT=1080 \
   "$IMAGE" >/dev/null
 
+docker exec "$CONTAINER" test -s /etc/ssl/certs/ca-certificates.crt
+
 dashboard_ready=false
 for _attempt in $(seq 1 30); do
   if docker exec "$CONTAINER" curl -fsS http://127.0.0.1:8080/api/status >/dev/null; then
