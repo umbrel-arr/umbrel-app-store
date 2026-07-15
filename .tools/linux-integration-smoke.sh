@@ -212,6 +212,19 @@ done
 
 readonly SETUP_APP_DIR="${BASE}/app-data/umbrel-arr-umbrelarr"
 mkdir -p "$SETUP_APP_DIR"
+
+# Freeze the fixture services while proving the manager export is read-only.
+# Otherwise first-run writes from those services can race this filesystem
+# snapshot and be misattributed to the export being tested.
+fixture_ids=()
+while IFS= read -r fixture_id; do
+  fixture_ids+=("$fixture_id")
+done < <(docker ps -q --filter "label=umbrel-arr-smoke=${RUN_TOKEN}")
+if [ "${#fixture_ids[@]}" -eq 0 ]; then
+  printf '%s\n' "No integration fixture containers were running before export validation." >&2
+  exit 1
+fi
+docker stop "${fixture_ids[@]}" >/dev/null
 before_setup_export="$(find "${BASE}/app-data" -mindepth 1 -print | sort)"
 derive_entropy() {
   case "$1" in
@@ -236,6 +249,7 @@ if [ "$before_setup_export" != "$after_setup_export" ]; then
   printf '%s\n' "umbrelarr export modified app data." >&2
   exit 1
 fi
+docker start "${fixture_ids[@]}" >/dev/null
 case " $SERVICE_SLUGS " in
   *" qbittorrent "*)
     if [ "${UMBREL_ARR_QBITTORRENT_PASSWORD:-}" != "$QBITTORRENT_PASSWORD" ]; then

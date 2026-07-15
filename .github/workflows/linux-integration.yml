@@ -7,6 +7,16 @@ permissions:
   contents: read
 
 jobs:
+  privado-process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify Privado supervisor lifecycle
+        env:
+          UMBREL_ARR_LINUX_INTEGRATION: "1"
+        run: .tools/privado-process-smoke.sh
+
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 30
