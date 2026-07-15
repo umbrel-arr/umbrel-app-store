@@ -221,6 +221,7 @@ derive_entropy() {
 }
 EXPORTS_APP_DIR="$SETUP_APP_DIR" \
   EXPORTS_APP_DATA_DIR="${SETUP_APP_DIR}/data" \
+  APP_PASSWORD="$QBITTORRENT_PASSWORD" \
   . umbrel-arr-umbrelarr/exports.sh
 after_setup_export="$(find "${BASE}/app-data" -mindepth 1 -print | sort)"
 if [ "$before_setup_export" != "$after_setup_export" ]; then

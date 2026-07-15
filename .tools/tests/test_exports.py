@@ -51,7 +51,9 @@ class ExportTests(unittest.TestCase):
             check=True,
         ).stdout
 
-    def run_umbrelarr_export(self, directory, *, derived_password="derived-password"):
+    def run_umbrelarr_export(
+        self, directory, *, derived_password="derived-password", legacy_password=""
+    ):
         script = ROOT / "umbrel-arr-umbrelarr" / "exports.sh"
         command = (
             f'derive_entropy() {{ printf %s "{derived_password}"; }}; '
@@ -61,6 +63,7 @@ class ExportTests(unittest.TestCase):
             ["sh", "-c", command],
             env={
                 **os.environ,
+                "APP_PASSWORD": legacy_password,
                 "EXPORTS_APP_DIR": str(directory),
                 "EXPORTS_APP_DATA_DIR": str(directory / "data"),
             },
@@ -148,11 +151,18 @@ class ExportTests(unittest.TestCase):
             without_qbittorrent = self.run_umbrelarr_export(manager)
             (app_root / "umbrel-arr-qbittorrent").mkdir(parents=True)
             with_qbittorrent = self.run_umbrelarr_export(
-                manager, derived_password="fixture-qbittorrent-password"
+                manager,
+                derived_password="fixture-qbittorrent-password",
+                legacy_password="fixture-manager-password",
             )
         self.assertNotIn("UMBREL_ARR_QBITTORRENT_PASSWORD=", without_qbittorrent)
+        self.assertNotIn("UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD=", without_qbittorrent)
         self.assertIn(
             "UMBREL_ARR_QBITTORRENT_PASSWORD=fixture-qbittorrent-password",
+            with_qbittorrent,
+        )
+        self.assertIn(
+            "UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD=fixture-manager-password",
             with_qbittorrent,
         )
 
@@ -228,12 +238,12 @@ class StatelessPackagingTests(unittest.TestCase):
     def test_umbrelarr_release_describes_modular_installation(self):
         manifest = (ROOT / "umbrel-arr-umbrelarr" / "umbrel-app.yml").read_text()
         compose = (ROOT / "umbrel-arr-umbrelarr" / "docker-compose.yml").read_text()
-        self.assertIn('version: "1.2.1"', manifest)
-        self.assertIn("installed optional modules", manifest)
-        self.assertIn("only required core dependency", manifest)
+        self.assertIn('version: "1.2.2"', manifest)
+        self.assertIn("legacy manager-owned qBittorrent password", manifest)
+        self.assertIn("modular read-only discovery", manifest)
         self.assertRegex(
             compose,
-            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.2\.1@sha256:[0-9a-f]{64}",
+            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.2\.2@sha256:[0-9a-f]{64}",
         )
         readme = (ROOT / "README.md").read_text()
         self.assertIn("never forced as dependencies", readme)

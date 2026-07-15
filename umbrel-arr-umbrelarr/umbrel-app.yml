@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-umbrelarr
 category: Media
 name: umbrelarr
-version: "1.2.1"
+version: "1.2.2"
 tagline: Build and manage the Umbrel Arr stack you want
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-umbrelarr/icon.svg
 description: >-
   umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.
 releaseNotes: >-
-  Restores read-only credential discovery for installed optional modules while keeping Prowlarr as the only required core dependency.
+  Migrates the legacy manager-owned qBittorrent password to qBittorrent's own deterministic credential while preserving modular read-only discovery.
 developer: Umbrel Arr
 website: https://github.com/umbrel-arr/umbrelarr
 dependencies:
