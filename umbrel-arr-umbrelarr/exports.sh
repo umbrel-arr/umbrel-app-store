@@ -26,6 +26,12 @@ fi
 if [ -d "${umbrel_arr_apps_root}/umbrel-arr-lidarr/data/config" ]; then
   export UMBREL_ARR_LIDARR_CONFIG_DIR="${umbrel_arr_apps_root}/umbrel-arr-lidarr/data/config"
 fi
+if [ -d "${umbrel_arr_apps_root}/jellyfin/data/config" ]; then
+  export UMBREL_ARR_JELLYFIN_CONFIG_DIR="${umbrel_arr_apps_root}/jellyfin/data/config"
+fi
+if [ -d "${umbrel_arr_apps_root}/plex/data/config" ]; then
+  export UMBREL_ARR_PLEX_CONFIG_DIR="${umbrel_arr_apps_root}/plex/data/config"
+fi
 if [ -d "${umbrel_arr_apps_root}/umbrel-arr-qbittorrent" ]; then
   export UMBREL_ARR_QBITTORRENT_PASSWORD="$(derive_entropy "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD")"
   export UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD="$(derive_entropy "app-umbrel-arr-umbrelarr-seed-APP_PASSWORD")"

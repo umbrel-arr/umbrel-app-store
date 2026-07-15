@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
 ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
 ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
-UMBRELARR_RELEASE_NOTES = "Reports Privado's selected VPN server when the optional exit-IP lookup is unavailable, keeping healthy routing status accurate."
+UMBRELARR_RELEASE_NOTES = "Adds opt-in support for the official Jellyfin and Plex apps, with read-only credential discovery and API-managed Umbrel Arr libraries."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
 PRIVADO_STATUS_RELEASE_NOTES = "Reports the automatically selected VPN server through ephemeral runtime status while keeping credentials and persistent app data untouched."
@@ -220,12 +220,12 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.2.5",
+        "version": "1.3.0",
         "port": 30992,
         "internal_port": 8080,
         # Immutable multi-architecture manifest produced by the umbrelarr
         # repository's Linux build workflow from signed main commit 8854073.
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.2.5@sha256:3b628deaca1e07254a81d6c9018c0931ff19baa6744d17a0cf6649869a8cda3d",
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.3.0@sha256:fd4802ce30a124f07dd3dd9f1c4ba1d4f070128294eadc16884949a24f40dabb",
         "tagline": "Build and manage the Umbrel Arr stack you want",
         "description": "umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.",
         "release_notes": UMBRELARR_RELEASE_NOTES,
@@ -258,6 +258,8 @@ APPS = {
 SERVICE_SLUGS = [slug for slug in APPS if slug != "umbrelarr"]
 STORAGE_SLUGS = {"qbittorrent", "sabnzbd", "sonarr", "sonarr-4k", "radarr", "radarr-4k", "bazarr", "lidarr"}
 CONFIG_SLUGS = ("prowlarr", "sabnzbd", "sonarr", "sonarr-4k", "radarr", "radarr-4k", "bazarr", "overseerr", "lidarr")
+OFFICIAL_CONFIG_SLUGS = ("jellyfin", "plex")
+MANAGED_CONFIG_SLUGS = (*CONFIG_SLUGS, *OFFICIAL_CONFIG_SLUGS)
 
 
 def app_id(slug):
@@ -403,6 +405,12 @@ def setup_compose(app):
         env_lines.append(f"      UMBREL_ARR_{var}_URL: ${{UMBREL_ARR_{var}_URL:-http://{app_id(slug)}_server_1:{internal}}}")
     env_lines.extend(
         [
+            "      UMBREL_ARR_JELLYFIN_URL: ${UMBREL_ARR_JELLYFIN_URL:-http://jellyfin_server_1:8096}",
+            "      UMBREL_ARR_PLEX_URL: http://${DEVICE_DOMAIN_NAME:-umbrel.local}:32400",
+        ]
+    )
+    env_lines.extend(
+        [
             "      UMBREL_ARR_QBITTORRENT_USERNAME: ${UMBREL_ARR_QBITTORRENT_USERNAME:-admin}",
             "      UMBREL_ARR_QBITTORRENT_PASSWORD: ${UMBREL_ARR_QBITTORRENT_PASSWORD:-}",
             "      UMBREL_ARR_PRIVADO_SOCKS_HOST: ${UMBREL_ARR_PRIVADO_SOCKS_HOST:-umbrel-arr-privado-vpn_server_1}",
@@ -413,7 +421,7 @@ def setup_compose(app):
     )
     config_mounts = "\n".join(
         f"    - ${{UMBREL_ARR_{slug.upper().replace('-', '_')}_CONFIG_DIR:-/dev/null}}:/managed-config/{slug}:ro"
-        for slug in CONFIG_SLUGS
+        for slug in MANAGED_CONFIG_SLUGS
     )
     block = (
         f"server:\n"
@@ -517,6 +525,16 @@ def exports(slug, app):
         for config_slug in CONFIG_SLUGS:
             var = config_slug.upper().replace("-", "_")
             path = f'${{umbrel_arr_apps_root}}/{app_id(config_slug)}/data/config'
+            lines.extend(
+                [
+                    f'if [ -d "{path}" ]; then',
+                    f'  export UMBREL_ARR_{var}_CONFIG_DIR="{path}"',
+                    "fi",
+                ]
+            )
+        for config_slug in OFFICIAL_CONFIG_SLUGS:
+            var = config_slug.upper()
+            path = f'${{umbrel_arr_apps_root}}/{config_slug}/data/config'
             lines.extend(
                 [
                     f'if [ -d "{path}" ]; then',

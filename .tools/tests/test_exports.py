@@ -18,6 +18,7 @@ CONFIG_SLUGS = (
     "overseerr",
     "lidarr",
 )
+OFFICIAL_CONFIG_SLUGS = ("jellyfin", "plex")
 SERVICE_SLUGS = (
     "privado-vpn",
     "flaresolverr",
@@ -151,6 +152,24 @@ class ExportTests(unittest.TestCase):
                 self.assertIn(f"UMBREL_ARR_{var}_CONFIG_DIR={expected}", output)
             self.assertNotIn("UMBREL_ARR_SABNZBD_CONFIG_DIR=", output)
 
+    def test_umbrelarr_discovers_existing_official_media_server_configs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            app_root = Path(temporary) / "app-data"
+            manager = app_root / "umbrel-arr-umbrelarr"
+            for slug in ("jellyfin", "plex"):
+                (app_root / slug / "data" / "config").mkdir(parents=True)
+
+            output = self.run_umbrelarr_export(manager)
+
+            self.assertIn(
+                f"UMBREL_ARR_JELLYFIN_CONFIG_DIR={app_root / 'jellyfin/data/config'}",
+                output,
+            )
+            self.assertIn(
+                f"UMBREL_ARR_PLEX_CONFIG_DIR={app_root / 'plex/data/config'}",
+                output,
+            )
+
     def test_umbrelarr_derives_qbittorrent_password_only_when_installed(self):
         with tempfile.TemporaryDirectory() as temporary:
             app_root = Path(temporary) / "app-data"
@@ -183,12 +202,14 @@ class StatelessPackagingTests(unittest.TestCase):
         self.assertNotIn("/data", compose)
         self.assertNotIn("docker.sock", compose)
         self.assertNotIn("_API_KEY:", compose)
-        for slug in CONFIG_SLUGS:
+        for slug in (*CONFIG_SLUGS, *OFFICIAL_CONFIG_SLUGS):
             var = slug.upper().replace("-", "_")
             self.assertIn(
                 f"${{UMBREL_ARR_{var}_CONFIG_DIR:-/dev/null}}:/managed-config/{slug}:ro",
                 compose,
             )
+        self.assertIn("UMBREL_ARR_JELLYFIN_URL:", compose)
+        self.assertIn("UMBREL_ARR_PLEX_URL:", compose)
         self.assertIn("UMBREL_ARR_SOCKS5_HOST: ${UMBREL_ARR_SOCKS5_HOST:-}", compose)
 
     def test_umbrelarr_uses_its_own_read_only_discovery_export(self):
@@ -245,12 +266,12 @@ class StatelessPackagingTests(unittest.TestCase):
     def test_umbrelarr_release_describes_modular_installation(self):
         manifest = (ROOT / "umbrel-arr-umbrelarr" / "umbrel-app.yml").read_text()
         compose = (ROOT / "umbrel-arr-umbrelarr" / "docker-compose.yml").read_text()
-        self.assertIn('version: "1.2.5"', manifest)
-        self.assertIn("Reports Privado's selected VPN server", manifest)
-        self.assertIn("healthy routing status accurate", manifest)
+        self.assertIn('version: "1.3.0"', manifest)
+        self.assertIn("opt-in support for the official Jellyfin and Plex apps", manifest)
+        self.assertIn("read-only credential discovery", manifest)
         self.assertRegex(
             compose,
-            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.2\.5@sha256:[0-9a-f]{64}",
+            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.3\.0@sha256:[0-9a-f]{64}",
         )
         readme = (ROOT / "README.md").read_text()
         self.assertIn("never forced as dependencies", readme)

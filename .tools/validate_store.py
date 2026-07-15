@@ -24,6 +24,7 @@ MANAGER_CONFIG_SLUGS = (
     "overseerr",
     "lidarr",
 )
+OFFICIAL_MANAGER_CONFIG_SLUGS = ("jellyfin", "plex")
 
 
 def manager_export_lines():
@@ -31,6 +32,16 @@ def manager_export_lines():
     for slug in MANAGER_CONFIG_SLUGS:
         variable = slug.upper().replace("-", "_")
         path = f"${{umbrel_arr_apps_root}}/umbrel-arr-{slug}/data/config"
+        lines.extend(
+            [
+                f'if [ -d "{path}" ]; then',
+                f'  export UMBREL_ARR_{variable}_CONFIG_DIR="{path}"',
+                "fi",
+            ]
+        )
+    for slug in OFFICIAL_MANAGER_CONFIG_SLUGS:
+        variable = slug.upper()
+        path = f"${{umbrel_arr_apps_root}}/{slug}/data/config"
         lines.extend(
             [
                 f'if [ -d "{path}" ]; then',

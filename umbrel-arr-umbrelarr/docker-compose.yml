@@ -6,7 +6,7 @@ services:
       APP_HOST: umbrel-arr-umbrelarr_server_1
       APP_PORT: 8080
   server:
-    image: ghcr.io/umbrel-arr/umbrelarr:1.2.5@sha256:3b628deaca1e07254a81d6c9018c0931ff19baa6744d17a0cf6649869a8cda3d
+    image: ghcr.io/umbrel-arr/umbrelarr:1.3.0@sha256:fd4802ce30a124f07dd3dd9f1c4ba1d4f070128294eadc16884949a24f40dabb
     restart: on-failure
     read_only: true
     environment:
@@ -27,6 +27,8 @@ services:
       UMBREL_ARR_OVERSEERR_URL: ${UMBREL_ARR_OVERSEERR_URL:-http://umbrel-arr-overseerr_server_1:5055}
       UMBREL_ARR_PROFILARR_URL: ${UMBREL_ARR_PROFILARR_URL:-http://umbrel-arr-profilarr_server_1:6868}
       UMBREL_ARR_LIDARR_URL: ${UMBREL_ARR_LIDARR_URL:-http://umbrel-arr-lidarr_server_1:8686}
+      UMBREL_ARR_JELLYFIN_URL: ${UMBREL_ARR_JELLYFIN_URL:-http://jellyfin_server_1:8096}
+      UMBREL_ARR_PLEX_URL: http://${DEVICE_DOMAIN_NAME:-umbrel.local}:32400
       UMBREL_ARR_QBITTORRENT_USERNAME: ${UMBREL_ARR_QBITTORRENT_USERNAME:-admin}
       UMBREL_ARR_QBITTORRENT_PASSWORD: ${UMBREL_ARR_QBITTORRENT_PASSWORD:-}
       UMBREL_ARR_PRIVADO_SOCKS_HOST: ${UMBREL_ARR_PRIVADO_SOCKS_HOST:-umbrel-arr-privado-vpn_server_1}
@@ -43,3 +45,5 @@ services:
       - ${UMBREL_ARR_BAZARR_CONFIG_DIR:-/dev/null}:/managed-config/bazarr:ro
       - ${UMBREL_ARR_OVERSEERR_CONFIG_DIR:-/dev/null}:/managed-config/overseerr:ro
       - ${UMBREL_ARR_LIDARR_CONFIG_DIR:-/dev/null}:/managed-config/lidarr:ro
+      - ${UMBREL_ARR_JELLYFIN_CONFIG_DIR:-/dev/null}:/managed-config/jellyfin:ro
+      - ${UMBREL_ARR_PLEX_CONFIG_DIR:-/dev/null}:/managed-config/plex:ro
