@@ -11,12 +11,7 @@ source /scripts/dante.sh
 print_settings
 set_timezone
 
-if [[ "${DASHBOARD_ENABLED,,}" == "true" ]]; then
-  log "INFO: Starting dashboard on port ${DASHBOARD_PORT}"
-  supervisorctl start dashboard || true
-else
-  log "INFO: Dashboard disabled; set DASHBOARD_ENABLED=true to enable it"
-fi
+log "INFO: Dashboard lifecycle is managed directly by supervisord"
 
 # Set sysctl for WireGuard policy-based routing
 # First check if it's already set correctly
@@ -74,12 +69,13 @@ setup_dns
 PUBLIC_IP=$(get_public_ip)
 log "INFO: Public IP: ${PUBLIC_IP}"
 
-# Start Dante SOCKS5 proxy
+# Hand the supervised main process over to the SOCKS5 proxy only after the
+# tunnel is healthy. This keeps supervisor RPC available to the dashboard and
+# prevents the proxy from ever relaying traffic before WireGuard is ready.
 setup_dante
-start_dante
-
 log "INFO: Privado VPN Proxy is ready"
 log "INFO: SOCKS5 proxy available on port ${SOCK_PORT}"
 if [[ "${DASHBOARD_ENABLED,,}" == "true" ]]; then
   log "INFO: Dashboard available on port ${DASHBOARD_PORT}"
 fi
+start_dante

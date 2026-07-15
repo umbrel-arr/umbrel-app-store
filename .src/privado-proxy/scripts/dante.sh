@@ -10,5 +10,5 @@ setup_dante() {
 
 start_dante() {
   log "INFO: PROXY: Starting microsocks"
-  supervisorctl start microsocks
+  exec /usr/bin/microsocks -i 0.0.0.0 -p "${SOCK_PORT}"
 }
