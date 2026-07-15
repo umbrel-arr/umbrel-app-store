@@ -13,18 +13,19 @@ ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official proj
 UMBRELARR_RELEASE_NOTES = "Derives the legacy manager-owned qBittorrent password explicitly so existing 1.1 stacks can authenticate once and rotate to qBittorrent's own deterministic credential."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
+PRIVADO_PROCESS_RELEASE_NOTES = "Fixes saved-login startup by removing nested supervisor calls and starts the SOCKS5 proxy only after WireGuard is healthy."
 
 APPS = {
     "privado-vpn": {
         "name": "Privado VPN",
         "category": "Networking",
-        "version": "1.2.4",
+        "version": "1.2.5",
         "port": 30980,
         "internal_port": 8080,
-        "image": "ghcr.io/umbrel-arr/privado-proxy:1.2.3@sha256:efda1dedb6047a0bcf776b0f84f3a3ab206327e37bab55a30fa781793c488cc3",
+        "image": "ghcr.io/umbrel-arr/privado-proxy:1.2.4@sha256:4ae28b669de7c95ecf5bb9e849e4f2f8b5e55b710027550b0504de2e3bbf7d12",
         "tagline": "Private SOCKS5 gateway for the media stack",
         "description": "Provides the WireGuard tunnel and SOCKS5 proxy used by Umbrel Arr. Enter your Privado login once in umbrelarr; a healthy server is selected automatically.",
-        "release_notes": ICON_RELEASE_NOTES,
+        "release_notes": PRIVADO_PROCESS_RELEASE_NOTES,
         "developer": "Umbrel Arr",
         "website": "https://github.com/umbrel-arr/umbrel-app-store",
         "repo": "https://github.com/umbrel-arr/umbrel-app-store",

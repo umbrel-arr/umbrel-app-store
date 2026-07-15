@@ -84,3 +84,8 @@ qBittorrent to its own app-derived password. Privado credentials are forwarded
 directly to the VPN app and are not stored by the management app. The umbrelarr
 source and image releases live in the separate
 [`umbrel-arr/umbrelarr`](https://github.com/umbrel-arr/umbrelarr) repository.
+
+The Privado container keeps its dashboard under Supervisor from startup. Its
+main process establishes WireGuard first and only then becomes the SOCKS5
+proxy, so a failed or unavailable tunnel cannot leave a direct-traffic proxy
+running.
