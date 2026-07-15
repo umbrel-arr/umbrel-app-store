@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
 ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
 ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
-UMBRELARR_RELEASE_NOTES = "Derives the legacy manager-owned qBittorrent password explicitly so existing 1.1 stacks can authenticate once and rotate to qBittorrent's own deterministic credential."
+UMBRELARR_RELEASE_NOTES = "Preserves user-owned provider settings and skips unchanged API writes so repeat reconciliation stays idempotent without retriggering service validation."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
 PRIVADO_TLS_RELEASE_NOTES = "Restores secure Privado API access by installing the system certificate authority bundle required to verify HTTPS endpoints."
@@ -220,12 +220,12 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.2.3",
+        "version": "1.2.4",
         "port": 30992,
         "internal_port": 8080,
         # Immutable multi-architecture manifest produced by the umbrelarr
-        # repository's Linux build workflow from signed main commit 266e8ed.
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.2.3@sha256:7f081490892b2efd20101a05a3591ae9ba56af78304d8f38c8a38ebbe1bad169",
+        # repository's Linux build workflow from signed main commit caa2725.
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.2.4@sha256:a1badd1f19bdde9f573587bd64e9ece3227fd2a4a5001f2f6a6e7fc3a39e212d",
         "tagline": "Build and manage the Umbrel Arr stack you want",
         "description": "umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.",
         "release_notes": UMBRELARR_RELEASE_NOTES,

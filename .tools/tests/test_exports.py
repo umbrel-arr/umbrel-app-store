@@ -245,12 +245,12 @@ class StatelessPackagingTests(unittest.TestCase):
     def test_umbrelarr_release_describes_modular_installation(self):
         manifest = (ROOT / "umbrel-arr-umbrelarr" / "umbrel-app.yml").read_text()
         compose = (ROOT / "umbrel-arr-umbrelarr" / "docker-compose.yml").read_text()
-        self.assertIn('version: "1.2.3"', manifest)
-        self.assertIn("legacy manager-owned qBittorrent password", manifest)
-        self.assertIn("Derives the legacy manager-owned", manifest)
+        self.assertIn('version: "1.2.4"', manifest)
+        self.assertIn("Preserves user-owned provider settings", manifest)
+        self.assertIn("skips unchanged API writes", manifest)
         self.assertRegex(
             compose,
-            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.2\.3@sha256:[0-9a-f]{64}",
+            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.2\.4@sha256:[0-9a-f]{64}",
         )
         readme = (ROOT / "README.md").read_text()
         self.assertIn("never forced as dependencies", readme)
