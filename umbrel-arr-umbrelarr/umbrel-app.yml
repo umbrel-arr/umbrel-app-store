@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-umbrelarr
 category: Media
 name: umbrelarr
-version: "1.2.4"
+version: "1.2.5"
 tagline: Build and manage the Umbrel Arr stack you want
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-umbrelarr/icon.svg
 description: >-
   umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.
 releaseNotes: >-
-  Preserves user-owned provider settings and skips unchanged API writes so repeat reconciliation stays idempotent without retriggering service validation.
+  Reports Privado's selected VPN server when the optional exit-IP lookup is unavailable, keeping healthy routing status accurate.
 developer: Umbrel Arr
 website: https://github.com/umbrel-arr/umbrelarr
 dependencies:
