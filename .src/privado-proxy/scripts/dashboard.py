@@ -94,6 +94,19 @@ def credentials_configured():
     )
 
 
+def current_server():
+    configured = os.environ.get("PRIVADO_SERVER", "").strip()
+    if configured:
+        return configured
+
+    server_file = os.environ.get("PRIVADO_SERVER_FILE", "/run/privado/server-name")
+    try:
+        with open(server_file, encoding="utf-8") as handle:
+            return handle.read(256).strip().splitlines()[0]
+    except (OSError, IndexError):
+        return ""
+
+
 def supervisor_state(program):
     output, _, code = run(["supervisorctl", "status", program], timeout=5)
     if code != 0 or not output:
@@ -123,7 +136,7 @@ def get_status():
         "handshake": handshake,
         "transfer": transfer,
         "publicIp": get_public_ip(),
-        "server": os.environ.get("PRIVADO_SERVER", ""),
+        "server": current_server(),
         "credentialsConfigured": credentials_configured(),
         "vpnProcessState": supervisor_state("main"),
         "configFile": os.environ.get("CONFIG_FILE", "/config/privado.env"),

@@ -14,6 +14,20 @@ SPEC.loader.exec_module(dashboard)
 
 
 class PrivadoDashboardTests(unittest.TestCase):
+    def test_current_server_reads_the_runtime_handoff(self):
+        with tempfile.TemporaryDirectory() as directory:
+            server_file = Path(directory) / "server-name"
+            server_file.write_text("selected.example\n", encoding="utf-8")
+            with patch.dict(
+                os.environ,
+                {
+                    "PRIVADO_SERVER": "",
+                    "PRIVADO_SERVER_FILE": str(server_file),
+                },
+                clear=False,
+            ):
+                self.assertEqual(dashboard.current_server(), "selected.example")
+
     def test_credentials_configured_reads_persisted_login(self):
         with tempfile.TemporaryDirectory() as directory:
             config_file = Path(directory) / "privado.env"

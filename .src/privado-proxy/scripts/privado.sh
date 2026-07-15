@@ -9,12 +9,14 @@ USER_AGENT="App: 3.0.0 (576942783), macOS: Version 12.4 (Build 21F79)"
 DATA_DIR="/run/privado"
 TOKEN_FILE="${DATA_DIR}/token.json"
 SERVERS_FILE="${DATA_DIR}/servers.json"
+SERVER_FILE="${DATA_DIR}/server-name"
 WG_CONFIG="/etc/wireguard/wg0.conf"
 
 # Initialize data directory
 init_privado() {
   mkdir -p ${DATA_DIR}
   mkdir -p /etc/wireguard
+  rm -f "${SERVER_FILE}"
 }
 
 # Login to Privado API and get access token
@@ -172,6 +174,7 @@ get_wireguard_config() {
   # Find the server hostname
   local server_hostname
   server_hostname=$(select_server)
+  printf '%s\n' "${server_hostname}" > "${SERVER_FILE}"
   log "INFO: PRIVADO: Selected server: ${server_hostname}"
 
   # Get WireGuard credentials from the server directly
