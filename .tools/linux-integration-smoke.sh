@@ -18,6 +18,7 @@ readonly OVERRIDE="${BASE}/compose.override.yml"
 readonly PARSER_OVERRIDE="${BASE}/compose.parser.yml"
 readonly PYTHON_IMAGE="python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0"
 readonly QBITTORRENT_PASSWORD="umbrel-arr-ci-${RUN_TOKEN}"
+readonly LEGACY_QBITTORRENT_PASSWORD="umbrel-arr-ci-legacy-${RUN_TOKEN}"
 readonly PROFILE="${UMBREL_ARR_SMOKE_PROFILE:-full-privado}"
 
 case "$PROFILE" in
@@ -213,21 +214,46 @@ readonly SETUP_APP_DIR="${BASE}/app-data/umbrel-arr-umbrelarr"
 mkdir -p "$SETUP_APP_DIR"
 before_setup_export="$(find "${BASE}/app-data" -mindepth 1 -print | sort)"
 derive_entropy() {
-  if [ "$1" != "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD" ]; then
-    printf 'Unexpected entropy label: %s\n' "$1" >&2
-    return 1
-  fi
-  printf '%s' "$QBITTORRENT_PASSWORD"
+  case "$1" in
+    app-umbrel-arr-qbittorrent-seed-APP_PASSWORD)
+      printf '%s' "$QBITTORRENT_PASSWORD"
+      ;;
+    app-umbrel-arr-umbrelarr-seed-APP_PASSWORD)
+      printf '%s' "$LEGACY_QBITTORRENT_PASSWORD"
+      ;;
+    *)
+      printf 'Unexpected entropy label: %s\n' "$1" >&2
+      return 1
+      ;;
+  esac
 }
 EXPORTS_APP_DIR="$SETUP_APP_DIR" \
   EXPORTS_APP_DATA_DIR="${SETUP_APP_DIR}/data" \
-  APP_PASSWORD="$QBITTORRENT_PASSWORD" \
+  APP_PASSWORD="wrong-context-password" \
   . umbrel-arr-umbrelarr/exports.sh
 after_setup_export="$(find "${BASE}/app-data" -mindepth 1 -print | sort)"
 if [ "$before_setup_export" != "$after_setup_export" ]; then
   printf '%s\n' "umbrelarr export modified app data." >&2
   exit 1
 fi
+case " $SERVICE_SLUGS " in
+  *" qbittorrent "*)
+    if [ "${UMBREL_ARR_QBITTORRENT_PASSWORD:-}" != "$QBITTORRENT_PASSWORD" ]; then
+      printf '%s\n' "umbrelarr export did not derive qBittorrent's app password." >&2
+      exit 1
+    fi
+    if [ "${UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD:-}" != "$LEGACY_QBITTORRENT_PASSWORD" ]; then
+      printf '%s\n' "umbrelarr export did not derive its legacy app password." >&2
+      exit 1
+    fi
+    ;;
+  *)
+    if [ -n "${UMBREL_ARR_QBITTORRENT_PASSWORD:-}${UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD:-}" ]; then
+      printf '%s\n' "umbrelarr export derived qBittorrent credentials for an absent module." >&2
+      exit 1
+    fi
+    ;;
+esac
 
 for slug in $CONFIG_SLUGS; do
   var="UMBREL_ARR_${slug^^}_CONFIG_DIR"

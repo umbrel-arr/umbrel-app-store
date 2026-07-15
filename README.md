@@ -79,7 +79,7 @@ The umbrelarr runtime is stateless, has a read-only root filesystem, and has no
 persistent data or shared-storage mount. qBittorrent uses Umbrel's deterministic
 app password, which umbrelarr applies through qBittorrent's API during explicit
 setup. A 1.1 installation may have received umbrelarr's deterministic password;
-1.2.2 accepts that value only as a migration fallback and immediately rotates
+1.2.3 accepts that value only as a migration fallback and immediately rotates
 qBittorrent to its own app-derived password. Privado credentials are forwarded
 directly to the VPN app and are not stored by the management app. The umbrelarr
 source and image releases live in the separate

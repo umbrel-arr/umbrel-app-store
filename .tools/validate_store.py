@@ -42,7 +42,7 @@ def manager_export_lines():
         [
             'if [ -d "${umbrel_arr_apps_root}/umbrel-arr-qbittorrent" ]; then',
             '  export UMBREL_ARR_QBITTORRENT_PASSWORD="$(derive_entropy "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD")"',
-            '  export UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD="${APP_PASSWORD:-}"',
+            '  export UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD="$(derive_entropy "app-umbrel-arr-umbrelarr-seed-APP_PASSWORD")"',
             "fi",
             "unset umbrel_arr_apps_root",
         ]

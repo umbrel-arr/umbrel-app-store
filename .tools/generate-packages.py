@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
 ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
 ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
-UMBRELARR_RELEASE_NOTES = "Migrates the legacy manager-owned qBittorrent password to qBittorrent's own deterministic credential while preserving modular read-only discovery."
+UMBRELARR_RELEASE_NOTES = "Derives the legacy manager-owned qBittorrent password explicitly so existing 1.1 stacks can authenticate once and rotate to qBittorrent's own deterministic credential."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
 
@@ -219,12 +219,12 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.2.2",
+        "version": "1.2.3",
         "port": 30992,
         "internal_port": 8080,
         # Immutable multi-architecture manifest produced by the umbrelarr
         # repository's Linux build workflow from signed main commit 266e8ed.
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.2.2@sha256:9b174df4fc84eff077b6a16847ace9d40570c1b92730e98f355b190099596712",
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.2.3@sha256:7f081490892b2efd20101a05a3591ae9ba56af78304d8f38c8a38ebbe1bad169",
         "tagline": "Build and manage the Umbrel Arr stack you want",
         "description": "umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.",
         "release_notes": UMBRELARR_RELEASE_NOTES,
@@ -528,7 +528,7 @@ def exports(slug, app):
             [
                 f'if [ -d "{qbittorrent_dir}" ]; then',
                 '  export UMBREL_ARR_QBITTORRENT_PASSWORD="$(derive_entropy "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD")"',
-                '  export UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD="${APP_PASSWORD:-}"',
+                '  export UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD="$(derive_entropy "app-umbrel-arr-umbrelarr-seed-APP_PASSWORD")"',
                 "fi",
                 "unset umbrel_arr_apps_root",
             ]
