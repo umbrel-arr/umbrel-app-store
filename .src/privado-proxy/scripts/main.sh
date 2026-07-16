@@ -8,6 +8,24 @@ source /scripts/iptables.sh
 source /scripts/privado.sh
 source /scripts/dante.sh
 
+cleanup_after_failure() {
+  local status=$?
+  trap - EXIT
+
+  if [[ ${status} -ne 0 ]]; then
+    log "WARNING: PRIVADO: Startup failed; restoring the original network state"
+    cleanup_wireguard_state
+  fi
+
+  exit "${status}"
+}
+
+trap cleanup_after_failure EXIT
+
+# Supervisor restarts reuse the container network namespace. Remove stale
+# tunnel state before any API or DNS request tries to use the old default route.
+cleanup_wireguard_state
+
 print_settings
 set_timezone
 
