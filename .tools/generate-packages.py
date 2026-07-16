@@ -13,19 +13,19 @@ ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official proj
 UMBRELARR_RELEASE_NOTES = "Adds opt-in support for the official Jellyfin and Plex apps, with read-only credential discovery and API-managed Umbrel Arr libraries."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
-PRIVADO_STATUS_RELEASE_NOTES = "Reports the automatically selected VPN server through ephemeral runtime status while keeping credentials and persistent app data untouched."
+PRIVADO_RECOVERY_RELEASE_NOTES = "Recovers stale WireGuard routes on restart and verifies DNS, HTTPS, and certificate trust through the SOCKS tunnel before reporting healthy."
 
 APPS = {
     "privado-vpn": {
         "name": "Privado VPN",
         "category": "Networking",
-        "version": "1.2.7",
+        "version": "1.2.8",
         "port": 30980,
         "internal_port": 8080,
-        "image": "ghcr.io/umbrel-arr/privado-proxy:1.2.6@sha256:37380b44057805345b0a74ddf657aae3c0bba1bb010c97a1a17f7d2ef54fb71e",
+        "image": "ghcr.io/umbrel-arr/privado-proxy:1.2.7@sha256:938168855e47c046053b95d479e696affa6b86e928dcc91c9ef95a83cbcc319e",
         "tagline": "Private SOCKS5 gateway for the media stack",
         "description": "Provides the WireGuard tunnel and SOCKS5 proxy used by Umbrel Arr. Enter your Privado login once in umbrelarr; a healthy server is selected automatically.",
-        "release_notes": PRIVADO_STATUS_RELEASE_NOTES,
+        "release_notes": PRIVADO_RECOVERY_RELEASE_NOTES,
         "developer": "Umbrel Arr",
         "website": "https://github.com/umbrel-arr/umbrel-app-store",
         "repo": "https://github.com/umbrel-arr/umbrel-app-store",
