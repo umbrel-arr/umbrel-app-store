@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-umbrelarr
 category: Media
 name: umbrelarr
-version: "1.4.0"
+version: "1.4.1"
 tagline: Build and manage the Umbrel Arr stack you want
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-umbrelarr/icon.svg
 description: >-
   umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.
 releaseNotes: >-
-  Adds authenticated, read-only Docker inventory and resource telemetry through an isolated broker sidecar; the dashboard remains unprivileged and never receives the Docker socket.
+  Fixes direct-routing reconciliation with Bazarr while retaining authenticated, read-only Docker inventory and resource telemetry through the isolated broker sidecar; the dashboard remains unprivileged.
 developer: Umbrel Arr
 website: https://github.com/umbrel-arr/umbrelarr
 dependencies:

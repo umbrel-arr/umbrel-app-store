@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
 ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
 ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
-UMBRELARR_RELEASE_NOTES = "Adds authenticated, read-only Docker inventory and resource telemetry through an isolated broker sidecar; the dashboard remains unprivileged and never receives the Docker socket."
+UMBRELARR_RELEASE_NOTES = "Fixes direct-routing reconciliation with Bazarr while retaining authenticated, read-only Docker inventory and resource telemetry through the isolated broker sidecar; the dashboard remains unprivileged."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
 PRIVADO_RECOVERY_RELEASE_NOTES = "Recovers stale WireGuard routes on restart and verifies DNS, HTTPS, and certificate trust through the SOCKS tunnel before reporting healthy."
@@ -220,12 +220,12 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.4.0",
+        "version": "1.4.1",
         "port": 30992,
         "internal_port": 8080,
         # Immutable multi-architecture manifest produced by the umbrelarr
-        # repository's Linux build workflow from signed commit 4fc4be4.
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.4.0@sha256:b0ade042c13e5d8dee57f169a18210186e71d29dfc7c2954080dbd2aaa80acf6",
+        # repository's Linux build workflow from signed commit 0969485.
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.4.1@sha256:7fe92aa8a34bfa85913ca128487f040f920868ad7322590254991b6de76abff2",
         "tagline": "Build and manage the Umbrel Arr stack you want",
         "description": "umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.",
         "release_notes": UMBRELARR_RELEASE_NOTES,
