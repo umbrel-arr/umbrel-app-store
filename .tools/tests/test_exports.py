@@ -305,12 +305,12 @@ class StatelessPackagingTests(unittest.TestCase):
     def test_umbrelarr_release_describes_modular_installation(self):
         manifest = (ROOT / "umbrel-arr-umbrelarr" / "umbrel-app.yml").read_text()
         compose = (ROOT / "umbrel-arr-umbrelarr" / "docker-compose.yml").read_text()
-        self.assertIn('version: "1.4.1"', manifest)
-        self.assertIn("Fixes direct-routing reconciliation with Bazarr", manifest)
-        self.assertIn("dashboard remains unprivileged", manifest)
+        self.assertIn('version: "1.4.2"', manifest)
+        self.assertIn("write-only UI credential fallback", manifest)
+        self.assertIn("isolated broker sidecar", manifest)
         self.assertRegex(
             compose,
-            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.4\.1@sha256:[0-9a-f]{64}",
+            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.4\.2@sha256:[0-9a-f]{64}",
         )
         readme = (ROOT / "README.md").read_text()
         self.assertIn("never forced as dependencies", readme)

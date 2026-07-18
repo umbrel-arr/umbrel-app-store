@@ -6,7 +6,7 @@ services:
       APP_HOST: umbrel-arr-umbrelarr_server_1
       APP_PORT: 8080
   server:
-    image: ghcr.io/umbrel-arr/umbrelarr:1.4.1@sha256:7fe92aa8a34bfa85913ca128487f040f920868ad7322590254991b6de76abff2
+    image: ghcr.io/umbrel-arr/umbrelarr:1.4.2@sha256:a95d84dc203855a2053a38b4fb88eb914d41af8b3ae43f8a4e7782f0b28cf450
     restart: on-failure
     read_only: true
     environment:
@@ -54,7 +54,7 @@ services:
         condition: service_healthy
 
   docker_inventory:
-    image: ghcr.io/umbrel-arr/umbrelarr:1.4.1@sha256:7fe92aa8a34bfa85913ca128487f040f920868ad7322590254991b6de76abff2
+    image: ghcr.io/umbrel-arr/umbrelarr:1.4.2@sha256:a95d84dc203855a2053a38b4fb88eb914d41af8b3ae43f8a4e7782f0b28cf450
     restart: on-failure
     read_only: true
     user: "0:0"
