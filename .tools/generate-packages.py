@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
 ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
 ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
-UMBRELARR_RELEASE_NOTES = "Restores the environment-variable and write-only UI credential fallback when a service rejects an automatically discovered API key, while retaining authenticated, read-only Docker inventory through the isolated broker sidecar."
+UMBRELARR_RELEASE_NOTES = "Detects unfinished Overseerr setup before API-key validation, guides Plex sign-in at the reachable service address, and automatically adopts the generated key after setup completes."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
 PRIVADO_RECOVERY_RELEASE_NOTES = "Recovers stale WireGuard routes on restart and verifies DNS, HTTPS, and certificate trust through the SOCKS tunnel before reporting healthy."
@@ -220,12 +220,12 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.4.2",
+        "version": "1.4.3",
         "port": 30992,
         "internal_port": 8080,
         # Immutable multi-architecture manifest produced by the umbrelarr
-        # repository's Linux build workflow from signed commit f0ebcca.
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.4.2@sha256:a95d84dc203855a2053a38b4fb88eb914d41af8b3ae43f8a4e7782f0b28cf450",
+        # repository's Linux build workflow from signed commit 8bf6891.
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.4.3@sha256:d1e55e95a31f00d6989631d56fa2849d38a0e8327b1527fda828bfd224b89fc6",
         "tagline": "Build and manage the Umbrel Arr stack you want",
         "description": "umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.",
         "release_notes": UMBRELARR_RELEASE_NOTES,

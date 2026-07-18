@@ -2,13 +2,13 @@ manifestVersion: 1
 id: umbrel-arr-umbrelarr
 category: Media
 name: umbrelarr
-version: "1.4.2"
+version: "1.4.3"
 tagline: Build and manage the Umbrel Arr stack you want
 icon: https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main/umbrel-arr-umbrelarr/icon.svg
 description: >-
   umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.
 releaseNotes: >-
-  Restores the environment-variable and write-only UI credential fallback when a service rejects an automatically discovered API key, while retaining authenticated, read-only Docker inventory through the isolated broker sidecar.
+  Detects unfinished Overseerr setup before API-key validation, guides Plex sign-in at the reachable service address, and automatically adopts the generated key after setup completes.
 developer: Umbrel Arr
 website: https://github.com/umbrel-arr/umbrelarr
 dependencies:
