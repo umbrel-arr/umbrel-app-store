@@ -51,6 +51,7 @@ def manager_export_lines():
         )
     lines.extend(
         [
+            'export UMBREL_ARR_DOCKER_BROKER_TOKEN="$(derive_entropy "app-umbrel-arr-umbrelarr-seed-DOCKER_BROKER_TOKEN")"',
             'if [ -d "${umbrel_arr_apps_root}/umbrel-arr-qbittorrent" ]; then',
             '  export UMBREL_ARR_QBITTORRENT_PASSWORD="$(derive_entropy "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD")"',
             '  export UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD="$(derive_entropy "app-umbrel-arr-umbrelarr-seed-APP_PASSWORD")"',
@@ -120,9 +121,26 @@ def main(root):
                 fail("umbrel-arr-umbrelarr must use its published image instead of embedded source")
             if "read_only: true" not in compose_text:
                 fail("umbrel-arr-umbrelarr must use a read-only root filesystem")
-            for forbidden in ("${APP_DATA_DIR}", "STATE_DIR", "docker.sock", ":/data"):
+            for forbidden in ("${APP_DATA_DIR}", "STATE_DIR", ":/data"):
                 if forbidden in compose_text:
                     fail(f"umbrel-arr-umbrelarr stateless runtime contains {forbidden}")
+            if compose_text.count("/var/run/docker.sock:/var/run/docker.sock:ro") != 1:
+                fail("umbrel-arr-umbrelarr must mount the Docker socket read-only exactly once")
+            server_block, separator, broker_block = compose_text.partition("\n  docker_inventory:\n")
+            if not separator:
+                fail("umbrel-arr-umbrelarr is missing its Docker inventory broker")
+            if "docker.sock" in server_block:
+                fail("umbrel-arr-umbrelarr web server must not receive the Docker socket")
+            for required in (
+                "read_only: true",
+                'user: "0:0"',
+                "command: [\"python3\", \"/app/docker_inventory.py\"]",
+                "cap_drop: [ALL]",
+                "no-new-privileges:true",
+                "DOCKER_INVENTORY_TOKEN: ${UMBREL_ARR_DOCKER_BROKER_TOKEN:?missing Docker broker token}",
+            ):
+                if required not in broker_block:
+                    fail(f"umbrel-arr-umbrelarr Docker broker is missing {required}")
             for line in compose_text.splitlines():
                 if ":/managed-config/" in line and not line.strip().endswith(":ro"):
                     fail("umbrel-arr-umbrelarr config mounts must be read-only")

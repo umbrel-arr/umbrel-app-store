@@ -32,6 +32,7 @@ fi
 if [ -d "${umbrel_arr_apps_root}/plex/data/config" ]; then
   export UMBREL_ARR_PLEX_CONFIG_DIR="${umbrel_arr_apps_root}/plex/data/config"
 fi
+export UMBREL_ARR_DOCKER_BROKER_TOKEN="$(derive_entropy "app-umbrel-arr-umbrelarr-seed-DOCKER_BROKER_TOKEN")"
 if [ -d "${umbrel_arr_apps_root}/umbrel-arr-qbittorrent" ]; then
   export UMBREL_ARR_QBITTORRENT_PASSWORD="$(derive_entropy "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD")"
   export UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD="$(derive_entropy "app-umbrel-arr-umbrelarr-seed-APP_PASSWORD")"

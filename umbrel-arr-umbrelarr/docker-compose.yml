@@ -6,13 +6,15 @@ services:
       APP_HOST: umbrel-arr-umbrelarr_server_1
       APP_PORT: 8080
   server:
-    image: ghcr.io/umbrel-arr/umbrelarr:1.3.0@sha256:fd4802ce30a124f07dd3dd9f1c4ba1d4f070128294eadc16884949a24f40dabb
+    image: ghcr.io/umbrel-arr/umbrelarr:1.4.0@sha256:b0ade042c13e5d8dee57f169a18210186e71d29dfc7c2954080dbd2aaa80acf6
     restart: on-failure
     read_only: true
     environment:
       TZ: ${TZ:-Etc/UTC}
       DEVICE_DOMAIN_NAME: ${DEVICE_DOMAIN_NAME:-umbrel.local}
       UMBREL_ARR_MANAGED_CONFIG_DIR: /managed-config
+      UMBREL_ARR_DOCKER_BROKER_URL: http://docker_inventory:8765
+      UMBREL_ARR_DOCKER_BROKER_TOKEN: ${UMBREL_ARR_DOCKER_BROKER_TOKEN:?missing Docker broker token}
       RECONCILE_INTERVAL: "300"
       UMBREL_ARR_PRIVADO_VPN_URL: ${UMBREL_ARR_PRIVADO_VPN_URL:-http://umbrel-arr-privado-vpn_server_1:8080}
       UMBREL_ARR_FLARESOLVERR_URL: ${UMBREL_ARR_FLARESOLVERR_URL:-http://umbrel-arr-flaresolverr_server_1:8191}
@@ -47,3 +49,28 @@ services:
       - ${UMBREL_ARR_LIDARR_CONFIG_DIR:-/dev/null}:/managed-config/lidarr:ro
       - ${UMBREL_ARR_JELLYFIN_CONFIG_DIR:-/dev/null}:/managed-config/jellyfin:ro
       - ${UMBREL_ARR_PLEX_CONFIG_DIR:-/dev/null}:/managed-config/plex:ro
+    depends_on:
+      docker_inventory:
+        condition: service_healthy
+
+  docker_inventory:
+    image: ghcr.io/umbrel-arr/umbrelarr:1.4.0@sha256:b0ade042c13e5d8dee57f169a18210186e71d29dfc7c2954080dbd2aaa80acf6
+    restart: on-failure
+    read_only: true
+    user: "0:0"
+    command: ["python3", "/app/docker_inventory.py"]
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      DOCKER_INVENTORY_HOST: 0.0.0.0
+      DOCKER_INVENTORY_PORT: "8765"
+      DOCKER_INVENTORY_TOKEN: ${UMBREL_ARR_DOCKER_BROKER_TOKEN:?missing Docker broker token}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD", "python3", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8765/healthz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 5s
+      retries: 3

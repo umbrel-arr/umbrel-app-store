@@ -53,7 +53,8 @@ class ExportTests(unittest.TestCase):
         ).stdout
 
     def run_umbrelarr_export(
-        self, directory, *, derived_password="derived-password", legacy_password=""
+        self, directory, *, derived_password="derived-password", legacy_password="",
+        broker_token="fixture-docker-broker-token",
     ):
         script = ROOT / "umbrel-arr-umbrelarr" / "exports.sh"
         command = (
@@ -61,6 +62,7 @@ class ExportTests(unittest.TestCase):
             'case "$1" in '
             '"app-umbrel-arr-qbittorrent-seed-APP_PASSWORD") printf %s "$DERIVED_PASSWORD" ;; '
             '"app-umbrel-arr-umbrelarr-seed-APP_PASSWORD") printf %s "$LEGACY_PASSWORD" ;; '
+            '"app-umbrel-arr-umbrelarr-seed-DOCKER_BROKER_TOKEN") printf %s "$BROKER_TOKEN" ;; '
             "*) return 1 ;; "
             "esac; }; "
             f'. "{script}"; env | sort'
@@ -72,6 +74,7 @@ class ExportTests(unittest.TestCase):
                 "APP_PASSWORD": "wrong-context-password",
                 "DERIVED_PASSWORD": derived_password,
                 "LEGACY_PASSWORD": legacy_password,
+                "BROKER_TOKEN": broker_token,
                 "EXPORTS_APP_DIR": str(directory),
                 "EXPORTS_APP_DATA_DIR": str(directory / "data"),
             },
@@ -192,6 +195,18 @@ class ExportTests(unittest.TestCase):
             with_qbittorrent,
         )
 
+    def test_umbrelarr_derives_a_private_broker_token(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = self.run_umbrelarr_export(
+                Path(temporary) / "umbrel-arr-umbrelarr",
+                broker_token="broker-token-from-umbrel",
+            )
+
+        self.assertIn(
+            "UMBREL_ARR_DOCKER_BROKER_TOKEN=broker-token-from-umbrel",
+            output,
+        )
+
 
 class StatelessPackagingTests(unittest.TestCase):
     def test_umbrelarr_is_read_only_and_mounts_optional_installed_configs(self):
@@ -200,7 +215,6 @@ class StatelessPackagingTests(unittest.TestCase):
         self.assertNotIn("STATE_DIR", compose)
         self.assertNotIn("${APP_DATA_DIR}", compose)
         self.assertNotIn("/data", compose)
-        self.assertNotIn("docker.sock", compose)
         self.assertNotIn("_API_KEY:", compose)
         for slug in (*CONFIG_SLUGS, *OFFICIAL_CONFIG_SLUGS):
             var = slug.upper().replace("-", "_")
@@ -211,6 +225,31 @@ class StatelessPackagingTests(unittest.TestCase):
         self.assertIn("UMBREL_ARR_JELLYFIN_URL:", compose)
         self.assertIn("UMBREL_ARR_PLEX_URL:", compose)
         self.assertIn("UMBREL_ARR_SOCKS5_HOST: ${UMBREL_ARR_SOCKS5_HOST:-}", compose)
+
+    def test_umbrelarr_isolates_authenticated_read_only_docker_inventory(self):
+        compose = (ROOT / "umbrel-arr-umbrelarr" / "docker-compose.yml").read_text()
+        server, separator, broker = compose.partition("\n  docker_inventory:\n")
+
+        self.assertTrue(separator)
+        self.assertNotIn("docker.sock", server)
+        self.assertIn("UMBREL_ARR_DOCKER_BROKER_URL: http://docker_inventory:8765", server)
+        self.assertIn(
+            "UMBREL_ARR_DOCKER_BROKER_TOKEN: ${UMBREL_ARR_DOCKER_BROKER_TOKEN:?missing Docker broker token}",
+            server,
+        )
+        self.assertIn("condition: service_healthy", server)
+        self.assertEqual(compose.count("/var/run/docker.sock:/var/run/docker.sock:ro"), 1)
+        self.assertIn("read_only: true", broker)
+        self.assertIn('user: "0:0"', broker)
+        self.assertIn('command: ["python3", "/app/docker_inventory.py"]', broker)
+        self.assertIn("cap_drop: [ALL]", broker)
+        self.assertIn("no-new-privileges:true", broker)
+        self.assertIn("DOCKER_INVENTORY_HOST: 0.0.0.0", broker)
+        self.assertIn(
+            "DOCKER_INVENTORY_TOKEN: ${UMBREL_ARR_DOCKER_BROKER_TOKEN:?missing Docker broker token}",
+            broker,
+        )
+        self.assertIn("http://127.0.0.1:8765/healthz", broker)
 
     def test_umbrelarr_uses_its_own_read_only_discovery_export(self):
         package = ROOT / "umbrel-arr-umbrelarr"
@@ -266,12 +305,12 @@ class StatelessPackagingTests(unittest.TestCase):
     def test_umbrelarr_release_describes_modular_installation(self):
         manifest = (ROOT / "umbrel-arr-umbrelarr" / "umbrel-app.yml").read_text()
         compose = (ROOT / "umbrel-arr-umbrelarr" / "docker-compose.yml").read_text()
-        self.assertIn('version: "1.3.0"', manifest)
-        self.assertIn("opt-in support for the official Jellyfin and Plex apps", manifest)
-        self.assertIn("read-only credential discovery", manifest)
+        self.assertIn('version: "1.4.0"', manifest)
+        self.assertIn("authenticated, read-only Docker inventory", manifest)
+        self.assertIn("dashboard remains unprivileged", manifest)
         self.assertRegex(
             compose,
-            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.3\.0@sha256:[0-9a-f]{64}",
+            r"image: ghcr\.io/umbrel-arr/umbrelarr:1\.4\.0@sha256:[0-9a-f]{64}",
         )
         readme = (ROOT / "README.md").read_text()
         self.assertIn("never forced as dependencies", readme)

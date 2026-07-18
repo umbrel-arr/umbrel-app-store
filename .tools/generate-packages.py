@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "umbrel-arr"
 ICON_BASE_URL = "https://raw.githubusercontent.com/umbrel-arr/umbrel-app-store/main"
 ICON_RELEASE_NOTES = "Adds a polished, fully opaque app icon using official project artwork where available and a matching Umbrel Arr treatment for custom variants."
-UMBRELARR_RELEASE_NOTES = "Adds opt-in support for the official Jellyfin and Plex apps, with read-only credential discovery and API-managed Umbrel Arr libraries."
+UMBRELARR_RELEASE_NOTES = "Adds authenticated, read-only Docker inventory and resource telemetry through an isolated broker sidecar; the dashboard remains unprivileged and never receives the Docker socket."
 API_HANDOFF_RELEASE_NOTES = "Replaces API-key pre-seeding with a read-only config-directory handoff to umbrelarr."
 QBITTORRENT_RELEASE_NOTES = "Adds Umbrel's deterministic app password for explicit, API-only qBittorrent onboarding without editing its config files."
 PRIVADO_RECOVERY_RELEASE_NOTES = "Recovers stale WireGuard routes on restart and verifies DNS, HTTPS, and certificate trust through the SOCKS tunnel before reporting healthy."
@@ -220,12 +220,12 @@ APPS = {
     "umbrelarr": {
         "name": "umbrelarr",
         "category": "Media",
-        "version": "1.3.0",
+        "version": "1.4.0",
         "port": 30992,
         "internal_port": 8080,
         # Immutable multi-architecture manifest produced by the umbrelarr
-        # repository's Linux build workflow from signed main commit 8854073.
-        "image": "ghcr.io/umbrel-arr/umbrelarr:1.3.0@sha256:fd4802ce30a124f07dd3dd9f1c4ba1d4f070128294eadc16884949a24f40dabb",
+        # repository's Linux build workflow from signed commit 4fc4be4.
+        "image": "ghcr.io/umbrel-arr/umbrelarr:1.4.0@sha256:b0ade042c13e5d8dee57f169a18210186e71d29dfc7c2954080dbd2aaa80acf6",
         "tagline": "Build and manage the Umbrel Arr stack you want",
         "description": "umbrelarr is the modular management surface for Umbrel Arr. Choose a profile or individual services, select a VPN strategy, detect the apps you installed, and confirm before any API-managed configuration begins.",
         "release_notes": UMBRELARR_RELEASE_NOTES,
@@ -397,6 +397,8 @@ def setup_compose(app):
         "      TZ: ${TZ:-Etc/UTC}",
         "      DEVICE_DOMAIN_NAME: ${DEVICE_DOMAIN_NAME:-umbrel.local}",
         "      UMBREL_ARR_MANAGED_CONFIG_DIR: /managed-config",
+        "      UMBREL_ARR_DOCKER_BROKER_URL: http://docker_inventory:8765",
+        "      UMBREL_ARR_DOCKER_BROKER_TOKEN: ${UMBREL_ARR_DOCKER_BROKER_TOKEN:?missing Docker broker token}",
         "      RECONCILE_INTERVAL: \"300\"",
     ]
     for slug in SERVICE_SLUGS:
@@ -432,7 +434,30 @@ def setup_compose(app):
         + "\n".join(f"    {line.strip()}" for line in env_lines)
         + "\n  volumes:\n"
         + config_mounts
-        + "\n"
+        + "\n  depends_on:\n"
+        + "    docker_inventory:\n"
+        + "      condition: service_healthy\n\n"
+        + "docker_inventory:\n"
+        + f"  image: {app['image']}\n"
+        + "  restart: on-failure\n"
+        + "  read_only: true\n"
+        + "  user: \"0:0\"\n"
+        + "  command: [\"python3\", \"/app/docker_inventory.py\"]\n"
+        + "  cap_drop: [ALL]\n"
+        + "  security_opt:\n"
+        + "    - no-new-privileges:true\n"
+        + "  environment:\n"
+        + "    DOCKER_INVENTORY_HOST: 0.0.0.0\n"
+        + "    DOCKER_INVENTORY_PORT: \"8765\"\n"
+        + "    DOCKER_INVENTORY_TOKEN: ${UMBREL_ARR_DOCKER_BROKER_TOKEN:?missing Docker broker token}\n"
+        + "  volumes:\n"
+        + "    - /var/run/docker.sock:/var/run/docker.sock:ro\n"
+        + "  healthcheck:\n"
+        + "    test: [\"CMD\", \"python3\", \"-c\", \"from urllib.request import urlopen; urlopen('http://127.0.0.1:8765/healthz', timeout=3)\"]\n"
+        + "    interval: 30s\n"
+        + "    timeout: 5s\n"
+        + "    start_period: 5s\n"
+        + "    retries: 3\n"
     )
     return service_compose("umbrelarr", 8080, block)
 
@@ -545,6 +570,7 @@ def exports(slug, app):
         qbittorrent_dir = f'${{umbrel_arr_apps_root}}/{app_id("qbittorrent")}'
         lines.extend(
             [
+                'export UMBREL_ARR_DOCKER_BROKER_TOKEN="$(derive_entropy "app-umbrel-arr-umbrelarr-seed-DOCKER_BROKER_TOKEN")"',
                 f'if [ -d "{qbittorrent_dir}" ]; then',
                 '  export UMBREL_ARR_QBITTORRENT_PASSWORD="$(derive_entropy "app-umbrel-arr-qbittorrent-seed-APP_PASSWORD")"',
                 '  export UMBREL_ARR_QBITTORRENT_LEGACY_PASSWORD="$(derive_entropy "app-umbrel-arr-umbrelarr-seed-APP_PASSWORD")"',
